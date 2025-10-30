@@ -650,7 +650,7 @@ class QAEasyEvidence {
         // Configurar fonte para suportar caracteres especiais
         doc.setFont('helvetica', 'normal');
 
-        // Função para quebrar texto em linhas de forma inteligente
+        // Função para quebrar texto em linhas de forma robusta
         const quebrarTexto = (texto, larguraMaxima) => {
             if (!texto) return [];
 
@@ -664,49 +664,59 @@ class QAEasyEvidence {
                     continue;
                 }
 
-                const palavras = paragrafo.trim().split(/\s+/);
-                let linhaAtual = '';
+                // Processar cada parágrafo
+                let textoRestante = paragrafo.trim();
 
-                for (let i = 0; i < palavras.length; i++) {
-                    const palavra = palavras[i];
-                    const textoTeste = linhaAtual + (linhaAtual ? ' ' : '') + palavra;
-                    const larguraTexto = doc.getTextWidth(textoTeste);
+                while (textoRestante.length > 0) {
+                    // Encontrar o maior texto que cabe na linha
+                    let linha = '';
+                    let melhorLinha = '';
 
-                    if (larguraTexto <= larguraMaxima) {
-                        linhaAtual = textoTeste;
-                    } else {
-                        if (linhaAtual) {
-                            linhas.push(linhaAtual);
-                            linhaAtual = palavra;
+                    // Tentar quebrar por palavras primeiro
+                    const palavras = textoRestante.split(/\s+/);
+
+                    for (let i = 0; i < palavras.length; i++) {
+                        const teste = linha + (linha ? ' ' : '') + palavras[i];
+                        const largura = doc.getTextWidth(teste);
+
+                        if (largura <= larguraMaxima) {
+                            melhorLinha = teste;
+                            linha = teste;
                         } else {
-                            // Palavra muito longa, quebrar por caracteres
-                            let palavraQuebrada = palavra;
-                            while (palavraQuebrada.length > 0) {
-                                let parte = '';
-                                for (let j = 0; j < palavraQuebrada.length; j++) {
-                                    const teste = parte + palavraQuebrada[j];
-                                    if (doc.getTextWidth(teste) <= larguraMaxima) {
-                                        parte = teste;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                if (parte.length === 0) {
-                                    // Se nem um caractere cabe, quebrar forçadamente
-                                    parte = palavraQuebrada.substring(0, Math.min(30, palavraQuebrada.length));
-                                    palavraQuebrada = palavraQuebrada.substring(parte.length);
-                                } else {
-                                    palavraQuebrada = palavraQuebrada.substring(parte.length);
-                                }
-                                linhas.push(parte);
-                            }
-                            linhaAtual = '';
+                            break;
                         }
                     }
-                }
 
-                if (linhaAtual) {
-                    linhas.push(linhaAtual);
+                    // Se conseguiu quebrar por palavras
+                    if (melhorLinha) {
+                        linhas.push(melhorLinha);
+                        // Remover o texto processado
+                        const indice = textoRestante.indexOf(melhorLinha);
+                        textoRestante = textoRestante.substring(indice + melhorLinha.length).trim();
+                    } else {
+                        // Quebrar por caracteres
+                        let linhaCaracteres = '';
+                        for (let i = 0; i < textoRestante.length; i++) {
+                            const teste = linhaCaracteres + textoRestante[i];
+                            const largura = doc.getTextWidth(teste);
+
+                            if (largura <= larguraMaxima) {
+                                linhaCaracteres = teste;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (linhaCaracteres) {
+                            linhas.push(linhaCaracteres);
+                            textoRestante = textoRestante.substring(linhaCaracteres.length).trim();
+                        } else {
+                            // Último recurso: quebrar por tamanho fixo
+                            const parte = textoRestante.substring(0, Math.min(50, textoRestante.length));
+                            linhas.push(parte);
+                            textoRestante = textoRestante.substring(parte.length).trim();
+                        }
+                    }
                 }
             }
 
@@ -714,10 +724,10 @@ class QAEasyEvidence {
         };
 
         // Função para adicionar texto com quebra de linha
-        const adicionarTextoQuebrado = (texto, x, y, larguraMaxima = 170) => {
+        const adicionarTextoQuebrado = (texto, x, y, larguraMaxima = 160) => {
             const linhas = quebrarTexto(texto, larguraMaxima);
             let yAtual = y;
-            const espacamentoLinha = 6; // Espaçamento entre linhas
+            const espacamentoLinha = 7; // Espaçamento maior entre linhas
 
             for (const linha of linhas) {
                 if (linha.trim() === '') {
@@ -821,13 +831,13 @@ class QAEasyEvidence {
                     `Descrição: ${evidencia.descricao}`,
                     20, y, larguraMaxima
                 );
-                y += alturaDescricao + 5; // Espaço extra após descrição
+                y += alturaDescricao + 10; // Espaço extra após descrição
 
                 doc.text(`Severidade: ${evidencia.severidade}`, 20, y);
-                y += 8;
+                y += 10;
 
                 doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y);
-                y += 15;
+                y += 20; // Mais espaço antes da próxima evidência
 
                 // Adicionar screenshot se existir
                 if (evidencia.screenshot) {
