@@ -629,13 +629,14 @@ class QAEasyEvidence {
 
     /**
      * Limpa caracteres especiais que podem causar problemas de codificação
+     * Mantém acentos do português e caracteres essenciais
      */
     limparTexto(texto) {
         if (!texto) return '';
-
+        
+        // Apenas remover caracteres realmente problemáticos, mantendo acentos
         return texto
-            .replace(/[^\x00-\x7F]/g, '') // Remove caracteres não-ASCII
-            .replace(/[^\w\s\-.,:;!?()]/g, '') // Remove caracteres especiais exceto pontuação básica
+            .replace(/[^\w\s\-.,:;!?()áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '') // Remove apenas caracteres especiais problemáticos
             .replace(/\s+/g, ' ') // Remove espaços múltiplos
             .trim();
     }
@@ -726,7 +727,16 @@ class QAEasyEvidence {
             );
             yInfo += alturaTarefa;
         }
-
+        
+        // Pré-requisitos com quebra de linha
+        if (this.configuracaoAtual?.prerequisitos) {
+            const alturaPrerequisitos = adicionarTextoQuebrado(
+                `Pré-requisitos: ${this.configuracaoAtual.prerequisitos}`,
+                20, yInfo, larguraMaxima
+            );
+            yInfo += alturaPrerequisitos;
+        }
+        
         doc.text(`Data: ${this.formatarData(new Date())}`, 20, yInfo);
         doc.text(`Total de Evidências: ${this.evidencias.length}`, 20, yInfo + 10);
 
