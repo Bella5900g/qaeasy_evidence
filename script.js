@@ -634,13 +634,14 @@ class QAEasyEvidence {
 
     /**
      * Limpa caracteres especiais que podem causar problemas de codificação
+     * Preserva acentos do português
      */
     limparTexto(texto) {
         if (!texto) return '';
 
-        // Limpar caracteres problemáticos e manter apenas ASCII básico
+        // Limpar apenas caracteres realmente problemáticos, preservando acentos do português
         return texto
-            .replace(/[^\x00-\x7F]/g, '') // Remove caracteres não-ASCII
+            .replace(/[^\w\s\-.,:;!?()áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '') // Remove caracteres especiais exceto acentos do português
             .replace(/\s+/g, ' ') // Remove espaços múltiplos
             .trim();
     }
@@ -660,8 +661,8 @@ class QAEasyEvidence {
         const quebrarTexto = (texto, larguraMaxima) => {
             if (!texto) return [];
 
-            // Limpar texto de caracteres problemáticos
-            const textoLimpo = texto.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, ' ').trim();
+            // Limpar texto de caracteres problemáticos, preservando acentos do português
+            const textoLimpo = texto.replace(/[^\w\s\-.,:;!?()áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '').replace(/\s+/g, ' ').trim();
 
             // Dividir por quebras de linha existentes primeiro
             const paragrafos = textoLimpo.split('\n');
