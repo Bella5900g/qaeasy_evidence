@@ -26,7 +26,6 @@ class QAEasyEvidence {
         this.carregarDadosSalvos();
         this.configurarEventListeners();
         this.inicializarCapturaLogs();
-        this.atualizarDashboard();
         this.aplicarTemplatesPredefinidos();
 
         console.log('🔍 QAEasy Evidence inicializado com sucesso!');
@@ -92,13 +91,6 @@ class QAEasyEvidence {
         });
 
         // Filtros da gallery
-        document.getElementById('filtroTipo').addEventListener('change', () => {
-            this.filtrarEvidencias();
-        });
-
-        document.getElementById('buscaEvidencias').addEventListener('input', () => {
-            this.filtrarEvidencias();
-        });
 
         // Validação em tempo real dos campos obrigatórios
         document.getElementById('projeto').addEventListener('change', this.validarConfiguracao.bind(this));
@@ -407,7 +399,6 @@ class QAEasyEvidence {
         this.evidencias.push(evidencia);
         this.salvarDados();
         this.atualizarGallery();
-        this.atualizarDashboard();
         this.cancelarEvidencia();
 
         this.mostrarNotificacao('Evidência salva com sucesso!', 'sucesso');
@@ -496,9 +487,7 @@ class QAEasyEvidence {
             return;
         }
 
-        const evidenciasFiltradas = this.filtrarEvidencias();
-
-        container.innerHTML = evidenciasFiltradas.map(evidencia => `
+        container.innerHTML = this.evidencias.map(evidencia => `
             <div class="evidence-card" data-id="${evidencia.id}">
                 <img src="${evidencia.screenshot}" alt="Screenshot da evidência" class="evidence-preview">
                 <div class="evidence-content">
@@ -526,22 +515,6 @@ class QAEasyEvidence {
         `).join('');
     }
 
-    /**
-     * Filtra evidências baseado nos filtros ativos
-     */
-    filtrarEvidencias() {
-        const tipoFiltro = document.getElementById('filtroTipo').value;
-        const busca = document.getElementById('buscaEvidencias').value.toLowerCase();
-
-        return this.evidencias.filter(evidencia => {
-            const matchTipo = tipoFiltro === 'todos' || evidencia.tipo === tipoFiltro;
-            const matchBusca = !busca ||
-                evidencia.descricao.toLowerCase().includes(busca) ||
-                evidencia.tags.some(tag => tag.toLowerCase().includes(busca));
-
-            return matchTipo && matchBusca;
-        });
-    }
 
     /**
      * Visualiza uma evidência específica
@@ -582,7 +555,6 @@ class QAEasyEvidence {
             this.evidencias = this.evidencias.filter(e => e.id !== id);
             this.salvarDados();
             this.atualizarGallery();
-            this.atualizarDashboard();
             this.mostrarNotificacao('Evidência excluída!', 'info');
         }
     }
@@ -1045,15 +1017,6 @@ class QAEasyEvidence {
     /**
      * Atualiza o dashboard de métricas
      */
-    atualizarDashboard() {
-        const totalEvidencias = this.evidencias.length;
-        const totalBugs = this.evidencias.filter(e => e.tipo === 'bug').length;
-        const totalPassou = this.evidencias.filter(e => e.tipo === 'pass').length;
-
-        document.getElementById('totalEvidencias').textContent = totalEvidencias;
-        document.getElementById('totalBugs').textContent = totalBugs;
-        document.getElementById('totalPassou').textContent = totalPassou;
-    }
 
     /**
      * Inicializa captura automática de logs do console

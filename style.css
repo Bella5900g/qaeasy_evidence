@@ -711,6 +711,24 @@ h3 {
     color: white;
 }
 
+.creditos {
+    margin-top: var(--espacamento-lg);
+    text-align: center;
+    padding-top: var(--espacamento-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.creditos p {
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.creditos strong {
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
 /* ===== RESPONSIVIDADE ===== */
 @media (max-width: 768px) {
     .container {
