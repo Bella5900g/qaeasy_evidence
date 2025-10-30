@@ -394,8 +394,8 @@ class QAEasyEvidence {
             id: this.gerarIdUnico(),
             tipo: tipoEvidencia.value,
             severidade: document.getElementById('severidade').value,
-            descricao: descricao, // Preservar acentos
-            cenario: cenarioEvidencia, // Preservar acentos
+            descricao: this.limparTexto(descricao),
+            cenario: this.limparTexto(cenarioEvidencia),
             timestamp: new Date().toISOString(),
             screenshot: this.screenshotTemporario,
             logs: [...this.logsConsole],
@@ -440,10 +440,10 @@ class QAEasyEvidence {
 
         this.configuracaoAtual = {
             projeto,
-            funcionalidade: funcionalidade, // Preservar acentos
-            versao: versao || null, // Preservar acentos
-            tarefa: tarefa || null, // Preservar acentos
-            prerequisitos: prerequisitos || null, // Preservar acentos
+            funcionalidade: this.limparTexto(funcionalidade),
+            versao: versao ? this.limparTexto(versao) : null,
+            tarefa: tarefa ? this.limparTexto(tarefa) : null,
+            prerequisitos: prerequisitos ? this.limparTexto(prerequisitos) : null,
             template,
             tags,
             timestamp: new Date().toISOString()
@@ -634,13 +634,13 @@ class QAEasyEvidence {
 
     /**
      * Limpa caracteres especiais que podem causar problemas de codificação
-     * Mantém acentos do português e caracteres essenciais
      */
     limparTexto(texto) {
         if (!texto) return '';
 
-        // Não limpar texto para preservar acentos - apenas remover espaços extras
+        // Limpar caracteres problemáticos e manter apenas ASCII básico
         return texto
+            .replace(/[^\x00-\x7F]/g, '') // Remove caracteres não-ASCII
             .replace(/\s+/g, ' ') // Remove espaços múltiplos
             .trim();
     }
@@ -655,12 +655,15 @@ class QAEasyEvidence {
         // Configurar fonte para suportar caracteres especiais
         doc.setFont('helvetica', 'normal');
 
-        // Função para quebrar texto em linhas de forma robusta
+        // Função para quebrar texto em linhas de forma simples e robusta
         const quebrarTexto = (texto, larguraMaxima) => {
             if (!texto) return [];
 
+            // Limpar texto de caracteres problemáticos
+            const textoLimpo = texto.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, ' ').trim();
+
             // Dividir por quebras de linha existentes primeiro
-            const paragrafos = texto.split('\n');
+            const paragrafos = textoLimpo.split('\n');
             const linhas = [];
 
             for (const paragrafo of paragrafos) {
