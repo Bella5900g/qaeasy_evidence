@@ -1,7 +1,7 @@
 /**
  * QAEasy Evidence - Coletor Profissional de Evidências de Testes
  * Sistema completo para coleta, classificação e geração de relatórios de evidências de QA
- * 
+ *
  * @author Isabella Barbosa - Engenheira de QA Sênior
  * @version 1.0.0
  */
@@ -15,7 +15,7 @@ class QAEasyEvidence {
         this.configuracaoAtual = null;
         this.logsConsole = [];
         this.errosJavaScript = [];
-        
+
         this.inicializar();
     }
 
@@ -28,7 +28,7 @@ class QAEasyEvidence {
         this.inicializarCapturaLogs();
         this.atualizarDashboard();
         this.aplicarTemplatesPredefinidos();
-        
+
         console.log('🔍 QAEasy Evidence inicializado com sucesso!');
     }
 
@@ -101,7 +101,7 @@ class QAEasyEvidence {
     toggleSessao() {
         const btnSessao = document.getElementById('btnIniciarSessao');
         const statusIndicador = document.getElementById('statusIndicador');
-        
+
         if (!this.sessaoAtiva) {
             this.iniciarSessao();
             btnSessao.textContent = 'Pausar Sessão';
@@ -122,12 +122,12 @@ class QAEasyEvidence {
         this.sessaoAtiva = true;
         this.tempoInicioSessao = new Date();
         this.iniciarTimer();
-        
+
         // Salvar configuração atual se não estiver salva
         if (!this.configuracaoAtual) {
             this.salvarConfiguracao();
         }
-        
+
         this.mostrarNotificacao('Sessão de teste iniciada!', 'sucesso');
     }
 
@@ -164,15 +164,15 @@ class QAEasyEvidence {
      */
     atualizarTimer() {
         if (!this.tempoInicioSessao) return;
-        
+
         const agora = new Date();
         const diferenca = agora - this.tempoInicioSessao;
         const segundos = Math.floor(diferenca / 1000);
         const minutos = Math.floor(segundos / 60);
         const horas = Math.floor(minutos / 60);
-        
+
         const tempoFormatado = `${horas.toString().padStart(2, '0')}:${(minutos % 60).toString().padStart(2, '0')}:${(segundos % 60).toString().padStart(2, '0')}`;
-        
+
         document.getElementById('timerSessao').textContent = tempoFormatado;
         document.getElementById('tempoSessao').textContent = tempoFormatado;
     }
@@ -193,22 +193,39 @@ class QAEasyEvidence {
 
         try {
             this.mostrarLoading('Capturando screenshot...');
-            
+
             // Capturar screenshot usando html2canvas
             const canvas = await html2canvas(document.body, {
                 useCORS: true,
                 allowTaint: true,
                 scale: 0.5, // Reduzir tamanho para melhor performance
-                logging: false
+                logging: false,
+                ignoreElements: (element) => {
+                    // Ignorar elementos problemáticos se necessário
+                    return false;
+                },
+                onclone: (clonedDoc) => {
+                    // Corrigir cores não suportadas no documento clonado
+                    const allElements = clonedDoc.querySelectorAll('*');
+                    allElements.forEach((el) => {
+                        const computedStyle = window.getComputedStyle(el);
+                        if (computedStyle.color) {
+                            el.style.color = computedStyle.color;
+                        }
+                        if (computedStyle.backgroundColor) {
+                            el.style.backgroundColor = computedStyle.backgroundColor;
+                        }
+                    });
+                }
             });
-            
+
             const screenshotData = canvas.toDataURL('image/png');
-            
+
             // Mostrar formulário de classificação
             this.mostrarFormularioClassificacao(screenshotData);
-            
+
             this.ocultarLoading();
-            
+
         } catch (erro) {
             console.error('Erro ao capturar screenshot:', erro);
             this.mostrarNotificacao('Erro ao capturar screenshot. Tente novamente.', 'erro');
@@ -223,10 +240,10 @@ class QAEasyEvidence {
         const formulario = document.getElementById('formularioClassificacao');
         formulario.style.display = 'block';
         formulario.scrollIntoView({ behavior: 'smooth' });
-        
+
         // Armazenar dados do screenshot temporariamente
         this.screenshotTemporario = screenshotData;
-        
+
         // Limpar formulário
         document.querySelectorAll('input[name="tipoEvidencia"]').forEach(input => {
             input.checked = false;
@@ -241,17 +258,17 @@ class QAEasyEvidence {
     salvarEvidencia() {
         const tipoEvidencia = document.querySelector('input[name="tipoEvidencia"]:checked');
         const descricao = document.getElementById('descricaoEvidencia').value.trim();
-        
+
         if (!tipoEvidencia) {
             this.mostrarNotificacao('Selecione o tipo de evidência!', 'erro');
             return;
         }
-        
+
         if (!descricao) {
             this.mostrarNotificacao('Descreva a evidência!', 'erro');
             return;
         }
-        
+
         const evidencia = {
             id: this.gerarIdUnico(),
             tipo: tipoEvidencia.value,
@@ -264,13 +281,13 @@ class QAEasyEvidence {
             metadados: this.capturarMetadados(),
             tags: this.configuracaoAtual.tags || []
         };
-        
+
         this.evidencias.push(evidencia);
         this.salvarDados();
         this.atualizarGallery();
         this.atualizarDashboard();
         this.cancelarEvidencia();
-        
+
         this.mostrarNotificacao('Evidência salva com sucesso!', 'sucesso');
     }
 
@@ -290,12 +307,12 @@ class QAEasyEvidence {
         const cenario = document.getElementById('cenario').value.trim();
         const template = document.getElementById('template').value;
         const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
-        
+
         if (!projeto || !cenario) {
             this.mostrarNotificacao('Preencha todos os campos obrigatórios!', 'erro');
             return;
         }
-        
+
         this.configuracaoAtual = {
             projeto,
             cenario,
@@ -303,7 +320,7 @@ class QAEasyEvidence {
             tags,
             timestamp: new Date().toISOString()
         };
-        
+
         this.salvarDados();
         this.mostrarNotificacao('Configuração salva!', 'sucesso');
     }
@@ -328,7 +345,7 @@ class QAEasyEvidence {
         const projeto = document.getElementById('projeto').value;
         const cenario = document.getElementById('cenario').value.trim();
         const btnSalvar = document.getElementById('btnSalvarConfiguracao');
-        
+
         btnSalvar.disabled = !projeto || !cenario;
     }
 
@@ -337,7 +354,7 @@ class QAEasyEvidence {
      */
     atualizarGallery() {
         const container = document.getElementById('galleryContainer');
-        
+
         if (this.evidencias.length === 0) {
             container.innerHTML = `
                 <div class="placeholder-gallery">
@@ -347,9 +364,9 @@ class QAEasyEvidence {
             `;
             return;
         }
-        
+
         const evidenciasFiltradas = this.filtrarEvidencias();
-        
+
         container.innerHTML = evidenciasFiltradas.map(evidencia => `
             <div class="evidence-card" data-id="${evidencia.id}">
                 <img src="${evidencia.screenshot}" alt="Screenshot da evidência" class="evidence-preview">
@@ -381,13 +398,13 @@ class QAEasyEvidence {
     filtrarEvidencias() {
         const tipoFiltro = document.getElementById('filtroTipo').value;
         const busca = document.getElementById('buscaEvidencias').value.toLowerCase();
-        
+
         return this.evidencias.filter(evidencia => {
             const matchTipo = tipoFiltro === 'todos' || evidencia.tipo === tipoFiltro;
-            const matchBusca = !busca || 
+            const matchBusca = !busca ||
                 evidencia.descricao.toLowerCase().includes(busca) ||
                 evidencia.tags.some(tag => tag.toLowerCase().includes(busca));
-            
+
             return matchTipo && matchBusca;
         });
     }
@@ -398,7 +415,7 @@ class QAEasyEvidence {
     visualizarEvidencia(id) {
         const evidencia = this.evidencias.find(e => e.id === id);
         if (!evidencia) return;
-        
+
         // Criar modal de visualização
         const modal = document.createElement('div');
         modal.className = 'modal-visualizacao';
@@ -419,7 +436,7 @@ class QAEasyEvidence {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
     }
 
@@ -444,13 +461,13 @@ class QAEasyEvidence {
             this.mostrarNotificacao('Nenhuma evidência para gerar relatório!', 'erro');
             return;
         }
-        
+
         try {
             this.mostrarLoading('Gerando relatório...');
-            
+
             let conteudo;
             let nomeArquivo;
-            
+
             switch (formato) {
                 case 'pdf':
                     conteudo = await this.gerarPDF();
@@ -469,11 +486,11 @@ class QAEasyEvidence {
                     nomeArquivo = `relatorio-qa-${this.formatarDataArquivo()}.txt`;
                     break;
             }
-            
+
             this.downloadArquivo(conteudo, nomeArquivo, formato);
             this.ocultarLoading();
             this.mostrarNotificacao('Relatório gerado com sucesso!', 'sucesso');
-            
+
         } catch (erro) {
             console.error('Erro ao gerar relatório:', erro);
             this.mostrarNotificacao('Erro ao gerar relatório!', 'erro');
@@ -487,35 +504,35 @@ class QAEasyEvidence {
     async gerarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
+
         // Cabeçalho
         doc.setFontSize(20);
         doc.text('Relatório de Evidências de Teste', 20, 30);
-        
+
         doc.setFontSize(12);
         doc.text(`Projeto: ${this.configuracaoAtual?.projeto || 'Não definido'}`, 20, 50);
         doc.text(`Cenário: ${this.configuracaoAtual?.cenario || 'Não definido'}`, 20, 60);
         doc.text(`Data: ${this.formatarData(new Date())}`, 20, 70);
-        
+
         let y = 90;
-        
+
         this.evidencias.forEach((evidencia, index) => {
             if (y > 250) {
                 doc.addPage();
                 y = 20;
             }
-            
+
             doc.setFontSize(14);
             doc.text(`${index + 1}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`, 20, y);
-            
+
             doc.setFontSize(10);
             doc.text(`Descrição: ${evidencia.descricao}`, 20, y + 10);
             doc.text(`Severidade: ${evidencia.severidade}`, 20, y + 20);
             doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y + 30);
-            
+
             y += 50;
         });
-        
+
         return doc.output('blob');
     }
 
@@ -532,7 +549,7 @@ class QAEasyEvidence {
         markdown += `- Bugs encontrados: ${this.evidencias.filter(e => e.tipo === 'bug').length}\n`;
         markdown += `- Testes que passaram: ${this.evidencias.filter(e => e.tipo === 'pass').length}\n\n`;
         markdown += `## Evidências\n\n`;
-        
+
         this.evidencias.forEach((evidencia, index) => {
             markdown += `### ${index + 1}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}\n\n`;
             markdown += `**Descrição:** ${evidencia.descricao}\n\n`;
@@ -541,7 +558,7 @@ class QAEasyEvidence {
             markdown += `**Tags:** ${evidencia.tags.join(', ')}\n\n`;
             markdown += `---\n\n`;
         });
-        
+
         return markdown;
     }
 
@@ -558,7 +575,7 @@ class QAEasyEvidence {
             },
             evidencias: this.evidencias
         };
-        
+
         return JSON.stringify(relatorio, null, 2);
     }
 
@@ -578,7 +595,7 @@ class QAEasyEvidence {
         texto += `Testes que passaram: ${this.evidencias.filter(e => e.tipo === 'pass').length}\n\n`;
         texto += `EVIDÊNCIAS\n`;
         texto += `----------\n\n`;
-        
+
         this.evidencias.forEach((evidencia, index) => {
             texto += `${index + 1}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}\n`;
             texto += `   Descrição: ${evidencia.descricao}\n`;
@@ -586,7 +603,7 @@ class QAEasyEvidence {
             texto += `   Data/Hora: ${this.formatarData(evidencia.timestamp)}\n`;
             texto += `   Tags: ${evidencia.tags.join(', ')}\n\n`;
         });
-        
+
         return texto;
     }
 
@@ -597,7 +614,7 @@ class QAEasyEvidence {
         const totalEvidencias = this.evidencias.length;
         const totalBugs = this.evidencias.filter(e => e.tipo === 'bug').length;
         const totalPassou = this.evidencias.filter(e => e.tipo === 'pass').length;
-        
+
         document.getElementById('totalEvidencias').textContent = totalEvidencias;
         document.getElementById('totalBugs').textContent = totalBugs;
         document.getElementById('totalPassou').textContent = totalPassou;
@@ -612,7 +629,7 @@ class QAEasyEvidence {
             error: console.error,
             warn: console.warn
         };
-        
+
         console.log = (...args) => {
             this.logsConsole.push({
                 tipo: 'log',
@@ -621,7 +638,7 @@ class QAEasyEvidence {
             });
             consoleOriginal.log(...args);
         };
-        
+
         console.error = (...args) => {
             this.errosJavaScript.push({
                 tipo: 'error',
@@ -630,7 +647,7 @@ class QAEasyEvidence {
             });
             consoleOriginal.error(...args);
         };
-        
+
         console.warn = (...args) => {
             this.logsConsole.push({
                 tipo: 'warn',
@@ -639,7 +656,7 @@ class QAEasyEvidence {
             });
             consoleOriginal.warn(...args);
         };
-        
+
         // Capturar erros JavaScript não tratados
         window.addEventListener('error', (event) => {
             this.errosJavaScript.push({
@@ -698,7 +715,7 @@ class QAEasyEvidence {
                 descricao: 'Teste de usabilidade e experiência do usuário'
             }
         };
-        
+
         // Aplicar template quando selecionado
         document.getElementById('template').addEventListener('change', (e) => {
             const template = templates[e.target.value];
@@ -718,7 +735,7 @@ class QAEasyEvidence {
             sessaoAtiva: this.sessaoAtiva,
             tempoInicioSessao: this.tempoInicioSessao
         };
-        
+
         localStorage.setItem('qaEasyEvidence', JSON.stringify(dados));
     }
 
@@ -734,7 +751,7 @@ class QAEasyEvidence {
                 this.configuracaoAtual = parsed.configuracaoAtual;
                 this.sessaoAtiva = parsed.sessaoAtiva || false;
                 this.tempoInicioSessao = parsed.tempoInicioSessao ? new Date(parsed.tempoInicioSessao) : null;
-                
+
                 if (this.sessaoAtiva && this.tempoInicioSessao) {
                     this.iniciarTimer();
                     document.getElementById('btnIniciarSessao').textContent = 'Pausar Sessão';
@@ -788,18 +805,18 @@ class QAEasyEvidence {
             z-index: 10000;
             animation: slideIn 0.3s ease-out;
         `;
-        
+
         const cores = {
             'sucesso': '#10b981',
             'erro': '#ef4444',
             'info': '#3b82f6',
             'aviso': '#f59e0b'
         };
-        
+
         notificacao.style.backgroundColor = cores[tipo] || cores.info;
-        
+
         document.body.appendChild(notificacao);
-        
+
         setTimeout(() => {
             notificacao.remove();
         }, 3000);
@@ -826,7 +843,7 @@ class QAEasyEvidence {
             justify-content: center;
             z-index: 10000;
         `;
-        
+
         document.body.appendChild(loading);
     }
 
@@ -839,13 +856,13 @@ class QAEasyEvidence {
 
     downloadArquivo(conteudo, nomeArquivo, tipo) {
         let blob;
-        
+
         if (tipo === 'pdf') {
             blob = conteudo;
         } else {
             blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
         }
-        
+
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -867,7 +884,7 @@ const estilosAdicionais = `
     .notificacao {
         animation: slideIn 0.3s ease-out;
     }
-    
+
     @keyframes slideIn {
         from {
             transform: translateX(100%);
@@ -878,7 +895,7 @@ const estilosAdicionais = `
             opacity: 1;
         }
     }
-    
+
     .modal-visualizacao {
         position: fixed;
         top: 0;
@@ -891,7 +908,7 @@ const estilosAdicionais = `
         justify-content: center;
         z-index: 10000;
     }
-    
+
     .modal-conteudo {
         background: white;
         border-radius: 10px;
@@ -899,7 +916,7 @@ const estilosAdicionais = `
         max-height: 90%;
         overflow: auto;
     }
-    
+
     .modal-header {
         display: flex;
         justify-content: space-between;
@@ -907,30 +924,30 @@ const estilosAdicionais = `
         padding: 20px;
         border-bottom: 1px solid #e2e8f0;
     }
-    
+
     .btn-fechar {
         background: none;
         border: none;
         font-size: 24px;
         cursor: pointer;
     }
-    
+
     .modal-body {
         padding: 20px;
     }
-    
+
     .detalhes-evidencia {
         margin-top: 20px;
         padding: 15px;
         background: #f8fafc;
         border-radius: 5px;
     }
-    
+
     .loading-conteudo {
         text-align: center;
         color: white;
     }
-    
+
     .spinner {
         width: 40px;
         height: 40px;
@@ -940,7 +957,7 @@ const estilosAdicionais = `
         animation: spin 1s linear infinite;
         margin: 0 auto 15px;
     }
-    
+
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
