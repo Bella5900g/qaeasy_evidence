@@ -229,6 +229,14 @@ h3 {
     resize: vertical;
 }
 
+.dica-campo {
+    display: block;
+    margin-top: var(--espacamento-xs);
+    font-size: 0.8rem;
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+}
+
 .acoes-configuracao {
     display: flex;
     gap: var(--espacamento-md);
@@ -463,6 +471,13 @@ h3 {
 .evidence-timestamp {
     font-size: 0.8rem;
     color: var(--cor-texto-secundario);
+}
+
+.evidence-scenario {
+    margin-bottom: var(--espacamento-sm);
+    font-size: 0.9rem;
+    color: var(--cor-primaria);
+    font-weight: 500;
 }
 
 .evidence-description {

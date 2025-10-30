@@ -357,6 +357,9 @@ class QAEasyEvidence {
         });
         document.getElementById('severidade').value = 'baixa';
         document.getElementById('descricaoEvidencia').value = '';
+
+        // Preencher cenário com o valor atual da configuração
+        document.getElementById('cenarioEvidencia').value = this.configuracaoAtual?.cenario || '';
     }
 
     /**
@@ -365,6 +368,7 @@ class QAEasyEvidence {
     salvarEvidencia() {
         const tipoEvidencia = document.querySelector('input[name="tipoEvidencia"]:checked');
         const descricao = document.getElementById('descricaoEvidencia').value.trim();
+        const cenarioEvidencia = document.getElementById('cenarioEvidencia').value.trim();
 
         if (!tipoEvidencia) {
             this.mostrarNotificacao('Selecione o tipo de evidência!', 'erro');
@@ -376,11 +380,17 @@ class QAEasyEvidence {
             return;
         }
 
+        if (!cenarioEvidencia) {
+            this.mostrarNotificacao('Informe o cenário de teste para esta evidência!', 'erro');
+            return;
+        }
+
         const evidencia = {
             id: this.gerarIdUnico(),
             tipo: tipoEvidencia.value,
             severidade: document.getElementById('severidade').value,
             descricao: descricao,
+            cenario: cenarioEvidencia, // Cenário específico desta evidência
             timestamp: new Date().toISOString(),
             screenshot: this.screenshotTemporario,
             logs: [...this.logsConsole],
@@ -481,6 +491,9 @@ class QAEasyEvidence {
                     <div class="evidence-header">
                         <span class="evidence-type">${this.getIconeTipo(evidencia.tipo)}</span>
                         <span class="evidence-timestamp">${this.formatarData(evidencia.timestamp)}</span>
+                    </div>
+                    <div class="evidence-scenario">
+                        <strong>Cenário:</strong> ${evidencia.cenario || 'Não definido'}
                     </div>
                     <div class="evidence-description">${evidencia.descricao}</div>
                     <div class="evidence-tags">
@@ -618,53 +631,93 @@ class QAEasyEvidence {
 
         doc.setFontSize(12);
         doc.text(`Projeto: ${this.configuracaoAtual?.projeto || 'Não definido'}`, 20, 50);
-        doc.text(`Cenário: ${this.configuracaoAtual?.cenario || 'Não definido'}`, 20, 60);
-        doc.text(`Data: ${this.formatarData(new Date())}`, 20, 70);
+        doc.text(`Data: ${this.formatarData(new Date())}`, 20, 60);
+        doc.text(`Total de Evidências: ${this.evidencias.length}`, 20, 70);
+
+        // Agrupar evidências por cenário
+        const evidenciasPorCenario = this.agruparEvidenciasPorCenario();
 
         let y = 90;
+        let contadorGeral = 1;
 
-        for (let index = 0; index < this.evidencias.length; index++) {
-            const evidencia = this.evidencias[index];
-
-            if (y > 200) {
+        // Iterar por cada cenário
+        for (const [cenario, evidencias] of Object.entries(evidenciasPorCenario)) {
+            // Título do cenário
+            if (y > 250) {
                 doc.addPage();
                 y = 20;
             }
 
-            doc.setFontSize(14);
-            doc.text(`${index + 1}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`, 20, y);
+            doc.setFontSize(16);
+            doc.setTextColor(37, 99, 235); // Cor azul
+            doc.text(`📋 Cenário: ${cenario}`, 20, y);
+            doc.setTextColor(0, 0, 0); // Voltar ao preto
 
-            doc.setFontSize(10);
-            doc.text(`Descrição: ${evidencia.descricao}`, 20, y + 10);
-            doc.text(`Severidade: ${evidencia.severidade}`, 20, y + 20);
-            doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y + 30);
+            y += 15;
 
-            // Adicionar screenshot se existir
-            if (evidencia.screenshot) {
-                try {
-                    // Redimensionar imagem para caber na página
-                    const imgWidth = 150;
-                    const imgHeight = 100;
+            // Evidências deste cenário
+            for (const evidencia of evidencias) {
+                if (y > 200) {
+                    doc.addPage();
+                    y = 20;
+                }
 
-                    // Verificar se há espaço na página atual
-                    if (y + 50 + imgHeight > 280) {
-                        doc.addPage();
-                        y = 20;
+                doc.setFontSize(14);
+                doc.text(`${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`, 20, y);
+
+                doc.setFontSize(10);
+                doc.text(`Descrição: ${evidencia.descricao}`, 20, y + 10);
+                doc.text(`Severidade: ${evidencia.severidade}`, 20, y + 20);
+                doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y + 30);
+
+                // Adicionar screenshot se existir
+                if (evidencia.screenshot) {
+                    try {
+                        // Redimensionar imagem para caber na página
+                        const imgWidth = 150;
+                        const imgHeight = 100;
+
+                        // Verificar se há espaço na página atual
+                        if (y + 50 + imgHeight > 280) {
+                            doc.addPage();
+                            y = 20;
+                        }
+
+                        doc.addImage(evidencia.screenshot, 'PNG', 20, y + 40, imgWidth, imgHeight);
+                        y += imgHeight + 60;
+                    } catch (erro) {
+                        console.warn('Erro ao adicionar imagem ao PDF:', erro);
+                        doc.text('Screenshot não disponível', 20, y + 40);
+                        y += 50;
                     }
-
-                    doc.addImage(evidencia.screenshot, 'PNG', 20, y + 40, imgWidth, imgHeight);
-                    y += imgHeight + 60;
-                } catch (erro) {
-                    console.warn('Erro ao adicionar imagem ao PDF:', erro);
-                    doc.text('Screenshot não disponível', 20, y + 40);
+                } else {
                     y += 50;
                 }
-            } else {
-                y += 50;
+
+                contadorGeral++;
             }
+
+            y += 20; // Espaço entre cenários
         }
 
         return doc.output('blob');
+    }
+
+    /**
+     * Agrupa evidências por cenário
+     */
+    agruparEvidenciasPorCenario() {
+        const grupos = {};
+
+        this.evidencias.forEach(evidencia => {
+            const cenario = evidencia.cenario || 'Cenário não definido';
+            if (!grupos[cenario]) {
+                grupos[cenario] = [];
+            }
+            grupos[cenario].push(evidencia);
+        });
+
+        return grupos;
     }
 
     /**
@@ -673,22 +726,30 @@ class QAEasyEvidence {
     gerarMarkdown() {
         let markdown = `# Relatório de Evidências de Teste\n\n`;
         markdown += `**Projeto:** ${this.configuracaoAtual?.projeto || 'Não definido'}\n`;
-        markdown += `**Cenário:** ${this.configuracaoAtual?.cenario || 'Não definido'}\n`;
-        markdown += `**Data:** ${this.formatarData(new Date())}\n\n`;
+        markdown += `**Data:** ${this.formatarData(new Date())}\n`;
+        markdown += `**Total de Evidências:** ${this.evidencias.length}\n\n`;
         markdown += `## Resumo\n\n`;
         markdown += `- Total de evidências: ${this.evidencias.length}\n`;
         markdown += `- Bugs encontrados: ${this.evidencias.filter(e => e.tipo === 'bug').length}\n`;
         markdown += `- Testes que passaram: ${this.evidencias.filter(e => e.tipo === 'pass').length}\n\n`;
-        markdown += `## Evidências\n\n`;
 
-        this.evidencias.forEach((evidencia, index) => {
-            markdown += `### ${index + 1}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}\n\n`;
-            markdown += `**Descrição:** ${evidencia.descricao}\n\n`;
-            markdown += `**Severidade:** ${evidencia.severidade}\n\n`;
-            markdown += `**Data/Hora:** ${this.formatarData(evidencia.timestamp)}\n\n`;
-            markdown += `**Tags:** ${evidencia.tags.join(', ')}\n\n`;
-            markdown += `---\n\n`;
-        });
+        // Agrupar evidências por cenário
+        const evidenciasPorCenario = this.agruparEvidenciasPorCenario();
+        let contadorGeral = 1;
+
+        for (const [cenario, evidencias] of Object.entries(evidenciasPorCenario)) {
+            markdown += `## 📋 Cenário: ${cenario}\n\n`;
+
+            evidencias.forEach((evidencia) => {
+                markdown += `### ${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}\n\n`;
+                markdown += `**Descrição:** ${evidencia.descricao}\n\n`;
+                markdown += `**Severidade:** ${evidencia.severidade}\n\n`;
+                markdown += `**Data/Hora:** ${this.formatarData(evidencia.timestamp)}\n\n`;
+                markdown += `**Tags:** ${evidencia.tags.join(', ')}\n\n`;
+                markdown += `---\n\n`;
+                contadorGeral++;
+            });
+        }
 
         return markdown;
     }
