@@ -1,6 +1,7 @@
 # 🔍 QAEasy Evidence
 
 **Coletor Profissional de Evidências de Testes de QA**
+Demo pública: [`https://bella5900g.github.io/qaeasy_evidence/#`](https://bella5900g.github.io/qaeasy_evidence/#)
 
 Ferramenta web completa para coleta, classificação e documentação de evidências de testes, desenvolvida para profissionais de qualidade.
 
@@ -17,6 +18,7 @@ O QAEasy Evidence permite aos QAs:
 ## ✨ Funcionalidades Principais
 
 ### 📸 Sistema de Captura
+
 - Captura de screenshots com seleção de aba
 - Classificação: PASSOU / BUG / MELHORIA / INFO
 - Severidade: Baixa / Média / Alta / Crítica
@@ -24,6 +26,7 @@ O QAEasy Evidence permite aos QAs:
 - Timestamp automático
 
 ### 📋 Gestão de Contexto
+
 - **Projeto:** WEB, MOBILE, API, Outros
 - **Funcionalidade:** Descrição principal
 - **Versão:** Versão do projeto
@@ -32,6 +35,7 @@ O QAEasy Evidence permite aos QAs:
 - **Templates:** 10 tipos de teste pré-definidos
 
 ### 📊 Templates de Teste
+
 - **Smoke Test** - Funcionalidades principais
 - **Teste Regressivo** - Regressão de funcionalidades
 - **Nova Funcionalidade** - Desenvolvimento
@@ -44,12 +48,14 @@ O QAEasy Evidence permite aos QAs:
 - **Teste E2E** - Fluxos completos
 
 ### 📄 Relatórios Profissionais
+
 - **PDF formatado** com cores por tipo
 - **Markdown** para documentação
 - **Texto simples** para email
 - **JSON estruturado** para integrações
 
 ### 🚀 Features de Produtividade
+
 - Templates com tags automáticas
 - Histórico de evidências (localStorage)
 - Otimização automática de armazenamento
@@ -69,7 +75,10 @@ O QAEasy Evidence permite aos QAs:
 ## 🚀 Como Usar
 
 ### 1. Configuração
+
 1. Acesse a ferramenta
+   - Online: [`https://bella5900g.github.io/qaeasy_evidence/#`](https://bella5900g.github.io/qaeasy_evidence/#)
+   - Local: abra `index.html`
 2. Configure o contexto:
    - Selecione projeto (WEB/MOBILE/API/Outros)
    - Descreva funcionalidade
@@ -78,6 +87,7 @@ O QAEasy Evidence permite aos QAs:
 3. Clique em "Salvar Configuração"
 
 ### 2. Capturar Evidências
+
 1. Clique em "Capturar Screenshot"
 2. Selecione a aba desejada
 3. Classifique a evidência:
@@ -88,6 +98,7 @@ O QAEasy Evidence permite aos QAs:
 4. Clique em "Salvar Evidência"
 
 ### 3. Gerar Relatórios
+
 1. Acesse "Geração de Relatórios"
 2. Escolha formato (PDF/Markdown/JSON/Texto)
 3. Baixe o arquivo gerado
@@ -133,6 +144,7 @@ const evidencia = {
 ## 🎨 Interface
 
 ### Estrutura
+
 ```
 [HEADER] Logo + Título
 [CONFIGURAÇÃO] Contexto do teste
@@ -143,6 +155,7 @@ const evidencia = {
 ```
 
 ### Cores por Tipo
+
 - **PASSOU** - Verde
 - **BUG** - Vermelho
 - **MELHORIA** - Amarelo
@@ -151,11 +164,13 @@ const evidencia = {
 ## 🔧 Deploy
 
 ### GitHub Pages
+
 1. Fork do repositório
 2. Ative GitHub Pages
 3. Acesse `https://seu-usuario.github.io/qaeasy_evidence`
 
 ### Servidor Local
+
 ```bash
 # Python
 python -m http.server 8000
@@ -184,6 +199,7 @@ MIT License - veja arquivo `LICENSE`
 ## 👥 Autora
 
 **Isabella Vieira Barbosa**
+
 - Engenheira de QA Sênior
 - ISTQB® CTFL | ASTFC™ (AICS)
 - Mais de 10 anos de experiência
