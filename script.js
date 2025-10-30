@@ -649,6 +649,7 @@ class QAEasyEvidence {
      * Gera relatório em PDF
      */
     async gerarPDF() {
+        console.log('Gerando PDF - versão atualizada:', new Date().toISOString());
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
@@ -851,7 +852,10 @@ class QAEasyEvidence {
                 // Aplicar cor ao texto do tipo usando setTextColor com hex
                 doc.setTextColor(corTipo);
 
-                const tipoTexto = `${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${this.traduzirTipoEvidencia(evidencia.tipo)}`;
+                // Forçar limpeza do texto do tipo
+                const iconeLimpo = this.getIconeTipo(evidencia.tipo).replace(/[^\x00-\x7F]/g, '');
+                const tipoLimpo = this.traduzirTipoEvidencia(evidencia.tipo).replace(/[^\x00-\x7F]/g, '');
+                const tipoTexto = `${contadorGeral}. ${iconeLimpo} ${tipoLimpo}`;
                 doc.text(tipoTexto, 20, y);
 
                 // Voltar cor para preto para o resto do texto
@@ -1271,7 +1275,9 @@ class QAEasyEvidence {
             'improvement': '[MEL]',
             'info': '[INF]'
         };
-        return icones[tipo] || '[N/A]';
+        const resultado = icones[tipo] || '[N/A]';
+        console.log('getIconeTipo:', tipo, '->', resultado);
+        return resultado;
     }
 
     /**
