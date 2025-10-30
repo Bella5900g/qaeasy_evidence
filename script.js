@@ -194,81 +194,48 @@ class QAEasyEvidence {
         try {
             this.mostrarLoading('Capturando screenshot...');
 
-            // Função para converter cores oklch para rgb
-            const convertOklchToRgb = (colorValue) => {
-                if (!colorValue || !colorValue.includes('oklch')) {
-                    return colorValue;
-                }
+            // Função para limpar todas as cores problemáticas
+            const limparCoresProblematicas = (element) => {
+                const computedStyle = window.getComputedStyle(element);
+                const colorProperties = [
+                    'color', 'backgroundColor', 'borderColor',
+                    'borderTopColor', 'borderRightColor',
+                    'borderBottomColor', 'borderLeftColor',
+                    'outlineColor', 'textDecorationColor'
+                ];
 
-                // Converter oklch para rgb usando canvas temporário
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = colorValue;
-                const computedColor = ctx.fillStyle;
-                return computedColor;
+                colorProperties.forEach(prop => {
+                    const value = computedStyle.getPropertyValue(prop);
+                    if (value && (value.includes('oklch') || value.includes('lch') || value.includes('hsl'))) {
+                        // Converter para RGB simples
+                        const tempDiv = document.createElement('div');
+                        tempDiv.style.color = value;
+                        document.body.appendChild(tempDiv);
+                        const rgbValue = window.getComputedStyle(tempDiv).color;
+                        document.body.removeChild(tempDiv);
+                        element.style.setProperty(prop, rgbValue, 'important');
+                    }
+                });
             };
 
-            // Capturar screenshot usando html2canvas
+            // Limpar cores problemáticas em todos os elementos antes da captura
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(limparCoresProblematicas);
+
+            // Capturar screenshot usando html2canvas com configurações mais simples
             const canvas = await html2canvas(document.body, {
-                useCORS: true,
-                allowTaint: true,
-                scale: 0.5, // Reduzir tamanho para melhor performance
+                useCORS: false,
+                allowTaint: false,
+                scale: 0.8,
                 logging: false,
+                backgroundColor: '#ffffff',
+                removeContainer: true,
+                foreignObjectRendering: false,
                 ignoreElements: (element) => {
-                    // Ignorar elementos problemáticos se necessário
-                    return false;
-                },
-                onclone: (clonedDoc) => {
-                    // Corrigir cores não suportadas no documento clonado
-                    const allElements = clonedDoc.querySelectorAll('*');
-                    allElements.forEach((el) => {
-                        const computedStyle = window.getComputedStyle(el);
-
-                        // Converter todas as propriedades de cor
-                        const colorProperties = [
-                            'color', 'backgroundColor', 'borderColor',
-                            'borderTopColor', 'borderRightColor',
-                            'borderBottomColor', 'borderLeftColor',
-                            'outlineColor', 'textDecorationColor',
-                            'textShadow', 'boxShadow'
-                        ];
-
-                        colorProperties.forEach(prop => {
-                            const value = computedStyle.getPropertyValue(prop);
-                            if (value && value.includes('oklch')) {
-                                const convertedColor = convertOklchToRgb(value);
-                                el.style.setProperty(prop, convertedColor, 'important');
-                            }
-                        });
-                    });
-
-                    // Também corrigir estilos inline
-                    const styleSheets = clonedDoc.styleSheets;
-                    for (let i = 0; i < styleSheets.length; i++) {
-                        try {
-                            const rules = styleSheets[i].cssRules;
-                            for (let j = 0; j < rules.length; j++) {
-                                const rule = rules[j];
-                                if (rule.style) {
-                                    const colorProperties = [
-                                        'color', 'background-color', 'border-color',
-                                        'outline-color', 'text-decoration-color'
-                                    ];
-
-                                    colorProperties.forEach(prop => {
-                                        const value = rule.style.getPropertyValue(prop);
-                                        if (value && value.includes('oklch')) {
-                                            const convertedColor = convertOklchToRgb(value);
-                                            rule.style.setProperty(prop, convertedColor, 'important');
-                                        }
-                                    });
-                                }
-                            }
-                        } catch (e) {
-                            // Ignorar erros de CORS
-                            console.warn('Não foi possível acessar stylesheet:', e);
-                        }
-                    }
+                    // Ignorar elementos que podem causar problemas
+                    return element.tagName === 'SCRIPT' ||
+                           element.tagName === 'STYLE' ||
+                           element.classList.contains('no-capture');
                 }
             });
 
