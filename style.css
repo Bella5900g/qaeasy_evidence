@@ -729,6 +729,30 @@ h3 {
     font-weight: 600;
 }
 
+/* Aviso de Privacidade */
+.privacidade-box {
+    margin-top: var(--espacamento-lg);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--raio-borda);
+    padding: var(--espacamento-md);
+}
+
+.privacidade-box h4 {
+    margin: 0 0 var(--espacamento-sm) 0;
+    color: white;
+}
+
+.privacidade-box ul {
+    margin: 0;
+    padding-left: var(--espacamento-md);
+    color: var(--cor-texto-secundario);
+}
+
+.privacidade-box li strong {
+    color: white;
+}
+
 /* ===== RESPONSIVIDADE ===== */
 @media (max-width: 768px) {
     .container {
