@@ -1,0 +1,49 @@
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependências (se usar npm/yarn no futuro)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de backup
+*.bak
+*.backup
+
+# Arquivos de configuração local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Arquivos de build (se usar build tools no futuro)
+dist/
+build/
+
+# Arquivos de cache
+.cache/
+.parcel-cache/
+
+# Arquivos de teste
+coverage/
+.nyc_output/
+
+# Arquivos de documentação gerados
+docs/_site/
+site/

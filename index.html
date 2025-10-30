@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QAEasy Evidence - Coletor de Evidências de Testes</title>
+    <meta name="description" content="Ferramenta profissional para coleta e documentação de evidências de testes de QA">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Principal -->
+    <header class="header-principal">
+        <div class="container">
+            <div class="logo-area">
+                <h1>🔍 QAEasy Evidence</h1>
+                <p class="subtitulo">Coletor Profissional de Evidências de Testes</p>
+            </div>
+            <div class="status-area">
+                <div class="status-sessao">
+                    <span class="status-indicador" id="statusIndicador">⏸️ Sessão Pausada</span>
+                    <div class="timer-sessao" id="timerSessao">00:00:00</div>
+                </div>
+                <button class="btn-sessao" id="btnIniciarSessao">Iniciar Sessão</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Seção de Configuração do Contexto -->
+    <section class="secao-configuracao" id="secaoConfiguracao">
+        <div class="container">
+            <h2>📋 Configuração do Contexto de Teste</h2>
+            <div class="formulario-configuracao">
+                <div class="campo-grupo">
+                    <label for="projeto">Projeto *</label>
+                    <select id="projeto" required>
+                        <option value="">Selecione o projeto</option>
+                        <option value="ecommerce">E-commerce</option>
+                        <option value="mobile-app">Aplicativo Mobile</option>
+                        <option value="dashboard">Dashboard Admin</option>
+                        <option value="api">API Backend</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="cenario">Cenário de Teste *</label>
+                    <input type="text" id="cenario" placeholder="Ex: Fluxo de checkout completo" required>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="template">Template de Teste</label>
+                    <select id="template">
+                        <option value="smoke-test">Smoke Test</option>
+                        <option value="regressivo">Teste Regressivo</option>
+                        <option value="nova-funcionalidade">Nova Funcionalidade</option>
+                        <option value="bug-fix">Correção de Bug</option>
+                        <option value="performance">Teste de Performance</option>
+                        <option value="usabilidade">Teste de Usabilidade</option>
+                    </select>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="tags">Tags (separadas por vírgula)</label>
+                    <input type="text" id="tags" placeholder="Ex: frontend, login, mobile">
+                </div>
+
+                <div class="acoes-configuracao">
+                    <button class="btn-primario" id="btnSalvarConfiguracao">Salvar Configuração</button>
+                    <button class="btn-secundario" id="btnLimparConfiguracao">Limpar</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Captura e Classificação -->
+    <section class="secao-captura" id="secaoCaptura">
+        <div class="container">
+            <h2>📸 Captura de Evidências</h2>
+            <div class="painel-captura">
+                <div class="area-captura">
+                    <button class="btn-captura-principal" id="btnCapturarScreenshot">
+                        📷 Capturar Screenshot
+                    </button>
+                    <p class="dica-captura">Clique para capturar a tela atual da aba</p>
+                </div>
+
+                <div class="formulario-classificacao" id="formularioClassificacao">
+                    <h3>Classificar Evidência</h3>
+                    
+                    <div class="campo-grupo">
+                        <label>Tipo de Evidência *</label>
+                        <div class="opcoes-tipo">
+                            <label class="opcao-tipo">
+                                <input type="radio" name="tipoEvidencia" value="pass">
+                                <span class="icone-tipo">✅</span>
+                                <span>Passou</span>
+                            </label>
+                            <label class="opcao-tipo">
+                                <input type="radio" name="tipoEvidencia" value="bug">
+                                <span class="icone-tipo">🔴</span>
+                                <span>Bug</span>
+                            </label>
+                            <label class="opcao-tipo">
+                                <input type="radio" name="tipoEvidencia" value="improvement">
+                                <span class="icone-tipo">🟡</span>
+                                <span>Melhoria</span>
+                            </label>
+                            <label class="opcao-tipo">
+                                <input type="radio" name="tipoEvidencia" value="info">
+                                <span class="icone-tipo">🔵</span>
+                                <span>Info</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="campo-grupo">
+                        <label for="severidade">Severidade</label>
+                        <select id="severidade">
+                            <option value="baixa">Baixa</option>
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+
+                    <div class="campo-grupo">
+                        <label for="descricaoEvidencia">Descrição da Evidência *</label>
+                        <textarea id="descricaoEvidencia" placeholder="Descreva o que foi observado..." required></textarea>
+                    </div>
+
+                    <div class="acoes-classificacao">
+                        <button class="btn-primario" id="btnSalvarEvidencia">Salvar Evidência</button>
+                        <button class="btn-secundario" id="btnCancelarEvidencia">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Gallery de Evidências -->
+    <section class="secao-gallery" id="secaoGallery">
+        <div class="container">
+            <div class="header-gallery">
+                <h2>🖼️ Evidências Capturadas</h2>
+                <div class="filtros-gallery">
+                    <select id="filtroTipo" title="Filtrar evidências por tipo">
+                        <option value="todos">Todos os Tipos</option>
+                        <option value="pass">✅ Passou</option>
+                        <option value="bug">🔴 Bug</option>
+                        <option value="improvement">🟡 Melhoria</option>
+                        <option value="info">🔵 Info</option>
+                    </select>
+                    <input type="text" id="buscaEvidencias" placeholder="Buscar evidências...">
+                </div>
+            </div>
+
+            <div class="gallery-container" id="galleryContainer">
+                <div class="placeholder-gallery">
+                    <p>📷 Nenhuma evidência capturada ainda</p>
+                    <p>Configure o contexto e capture sua primeira evidência!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Geração de Relatórios -->
+    <section class="secao-relatorios" id="secaoRelatorios">
+        <div class="container">
+            <h2>📊 Geração de Relatórios</h2>
+            <div class="painel-relatorios">
+                <div class="opcoes-relatorio">
+                    <h3>Escolha o formato do relatório:</h3>
+                    <div class="botoes-relatorio">
+                        <button class="btn-relatorio" id="btnGerarPDF">
+                            📄 Gerar PDF
+                        </button>
+                        <button class="btn-relatorio" id="btnGerarMarkdown">
+                            📝 Gerar Markdown
+                        </button>
+                        <button class="btn-relatorio" id="btnGerarJSON">
+                            🔧 Gerar JSON
+                        </button>
+                        <button class="btn-relatorio" id="btnGerarTexto">
+                            📋 Gerar Texto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="preview-relatorio" id="previewRelatorio">
+                    <h3>Preview do Relatório</h3>
+                    <div class="conteudo-preview" id="conteudoPreview"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard de Métricas -->
+    <section class="secao-dashboard" id="secaoDashboard">
+        <div class="container">
+            <h2>📈 Dashboard de Métricas</h2>
+            <div class="cards-metricas">
+                <div class="card-metrica">
+                    <div class="icone-metrica">📊</div>
+                    <div class="dados-metrica">
+                        <span class="valor-metrica" id="totalEvidencias">0</span>
+                        <span class="label-metrica">Total de Evidências</span>
+                    </div>
+                </div>
+                <div class="card-metrica">
+                    <div class="icone-metrica">🔴</div>
+                    <div class="dados-metrica">
+                        <span class="valor-metrica" id="totalBugs">0</span>
+                        <span class="label-metrica">Bugs Encontrados</span>
+                    </div>
+                </div>
+                <div class="card-metrica">
+                    <div class="icone-metrica">✅</div>
+                    <div class="dados-metrica">
+                        <span class="valor-metrica" id="totalPassou">0</span>
+                        <span class="label-metrica">Testes Passaram</span>
+                    </div>
+                </div>
+                <div class="card-metrica">
+                    <div class="icone-metrica">⏱️</div>
+                    <div class="dados-metrica">
+                        <span class="valor-metrica" id="tempoSessao">00:00</span>
+                        <span class="label-metrica">Tempo de Sessão</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer com Guia Rápido -->
+    <footer class="footer-principal">
+        <div class="container">
+            <div class="guia-rapido">
+                <h3>🚀 Guia Rápido</h3>
+                <div class="passos-guia">
+                    <div class="passo">
+                        <span class="numero-passo">1</span>
+                        <span>Configure o contexto do teste</span>
+                    </div>
+                    <div class="passo">
+                        <span class="numero-passo">2</span>
+                        <span>Capture evidências com screenshots</span>
+                    </div>
+                    <div class="passo">
+                        <span class="numero-passo">3</span>
+                        <span>Classifique e descreva cada evidência</span>
+                    </div>
+                    <div class="passo">
+                        <span class="numero-passo">4</span>
+                        <span>Gere relatórios profissionais</span>
+                    </div>
+                </div>
+            </div>
+            <div class="links-uteis">
+                <h4>Links Úteis</h4>
+                <a href="#" id="linkDocumentacao">📖 Documentação</a>
+                <a href="#" id="linkExemplos">💡 Exemplos de Uso</a>
+                <a href="#" id="linkSuporte">🆘 Suporte</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+# Configuração para GitHub Pages
+title: QAEasy Evidence
+description: Coletor Profissional de Evidências de Testes de QA
+author: Isabella Barbosa
+email: isabella@qa-easy-evidence.com
+
+# Configurações do site
+baseurl: "/qa-easy-evidence"
+url: "https://isabella-barbosa.github.io"
+
+# Configurações de build
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Configurações de plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Configurações de SEO
+seo:
+  type: Website
+  locale: pt_BR
+  site_name: QAEasy Evidence
+  description: Ferramenta web completa para coleta e documentação de evidências de testes de QA
+  keywords: qa, testing, evidências, testes, qualidade, software, ferramenta
+
+# Configurações de navegação
+navigation:
+  - title: Início
+    url: /
+  - title: Documentação
+    url: /README.md
+  - title: Exemplos
+    url: /EXEMPLO_USO.md
+  - title: Deploy
+    url: /DEPLOY.md
+
+# Configurações de coleções
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Configurações de defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "page"
+
+# Configurações de exclusão
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .gitignore
+  - README.md
+  - LICENSE
+  - CHANGELOG.md
+  - DEPLOY.md
+  - EXEMPLO_USO.md
+  - .github

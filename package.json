@@ -1,0 +1,73 @@
+{
+  "name": "qa-easy-evidence",
+  "version": "1.0.0",
+  "description": "Coletor Profissional de Evidências de Testes de QA",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build step required'",
+    "test": "echo 'No tests configured'",
+    "lint": "echo 'No linter configured'",
+    "deploy": "echo 'Deploy to GitHub Pages'"
+  },
+  "keywords": [
+    "qa",
+    "testing",
+    "evidências",
+    "testes",
+    "qualidade",
+    "software",
+    "ferramenta",
+    "screenshot",
+    "relatórios",
+    "documentação"
+  ],
+  "author": {
+    "name": "Isabella Barbosa",
+    "email": "isabella@qa-easy-evidence.com",
+    "url": "https://github.com/isabella-barbosa"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/isabella-barbosa/qa-easy-evidence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/isabella-barbosa/qa-easy-evidence/issues"
+  },
+  "homepage": "https://isabella-barbosa.github.io/qa-easy-evidence",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "devDependencies": {},
+  "dependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": [],
+  "files": [
+    "index.html",
+    "style.css",
+    "script.js",
+    "demo.html",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "DEPLOY.md",
+    "EXEMPLO_USO.md"
+  ],
+  "directories": {
+    "lib": "lib",
+    "doc": "docs",
+    "test": "tests"
+  },
+  "config": {
+    "port": 8000,
+    "host": "localhost"
+  }
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - QAEasy Evidence</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .demo-section {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .demo-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .demo-button:hover {
+            background: #0056b3;
+        }
+        .demo-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .demo-form input, .demo-form select, .demo-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .demo-alert {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .demo-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .demo-success {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Demo - QAEasy Evidence</h1>
+    <p>Esta é uma página de demonstração para testar a ferramenta QAEasy Evidence. Use esta página para praticar a captura de evidências!</p>
+
+    <div class="demo-section">
+        <h2>📋 Formulário de Demonstração</h2>
+        <p>Este formulário simula uma funcionalidade que pode ser testada:</p>
+        
+        <div class="demo-form">
+            <h3>Cadastro de Usuário</h3>
+            <input type="text" placeholder="Nome completo" id="nome">
+            <input type="email" placeholder="Email" id="email">
+            <input type="password" placeholder="Senha" id="senha">
+            <select id="cargo" title="Selecione o cargo do usuário">
+                <option value="">Selecione o cargo</option>
+                <option value="qa">QA Tester</option>
+                <option value="dev">Desenvolvedor</option>
+                <option value="pm">Product Manager</option>
+            </select>
+            <textarea placeholder="Observações" id="observacoes"></textarea>
+            <button class="demo-button" onclick="testarFormulario()">Testar Validação</button>
+            <button class="demo-button" onclick="simularErro()">Simular Erro</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🎯 Cenários de Teste Sugeridos</h2>
+        <p>Use estes cenários para praticar com a ferramenta QAEasy Evidence:</p>
+        
+        <h3>1. Teste de Validação de Formulário</h3>
+        <ul>
+            <li>Teste campos obrigatórios</li>
+            <li>Validação de email</li>
+            <li>Validação de senha</li>
+            <li>Mensagens de erro</li>
+        </ul>
+
+        <h3>2. Teste de Usabilidade</h3>
+        <ul>
+            <li>Interface intuitiva</li>
+            <li>Mensagens claras</li>
+            <li>Fluxo de preenchimento</li>
+            <li>Responsividade</li>
+        </ul>
+
+        <h3>3. Teste de Performance</h3>
+        <ul>
+            <li>Tempo de carregamento</li>
+            <li>Responsividade da interface</li>
+            <li>Consumo de memória</li>
+        </ul>
+    </div>
+
+    <div class="demo-section">
+        <h2>🚀 Como Usar Esta Demo</h2>
+        <ol>
+            <li>Abra a ferramenta QAEasy Evidence em outra aba</li>
+            <li>Configure o contexto do teste (ex: "Demo - Validação de Formulário")</li>
+            <li>Inicie uma sessão de teste</li>
+            <li>Teste os elementos desta página</li>
+            <li>Capture evidências dos resultados</li>
+            <li>Classifique cada evidência</li>
+            <li>Gere um relatório final</li>
+        </ol>
+    </div>
+
+    <div class="demo-section">
+        <h2>📊 Dados de Teste</h2>
+        <p>Use estes dados para testar o formulário:</p>
+        <ul>
+            <li><strong>Nome válido:</strong> João Silva</li>
+            <li><strong>Email válido:</strong> joao@exemplo.com</li>
+            <li><strong>Email inválido:</strong> email-invalido</li>
+            <li><strong>Senha válida:</strong> MinhaSenh@123</li>
+            <li><strong>Senha inválida:</strong> 123</li>
+        </ul>
+    </div>
+
+    <div id="resultado"></div>
+
+    <script>
+        function testarFormulario() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const cargo = document.getElementById('cargo').value;
+            
+            let erros = [];
+            
+            if (!nome) erros.push('Nome é obrigatório');
+            if (!email) erros.push('Email é obrigatório');
+            if (!senha) erros.push('Senha é obrigatória');
+            if (!cargo) erros.push('Cargo é obrigatório');
+            
+            if (email && !email.includes('@')) {
+                erros.push('Email deve ter formato válido');
+            }
+            
+            if (senha && senha.length < 6) {
+                erros.push('Senha deve ter pelo menos 6 caracteres');
+            }
+            
+            const resultado = document.getElementById('resultado');
+            
+            if (erros.length === 0) {
+                resultado.innerHTML = '<div class="demo-success">✅ Formulário válido! Todos os campos foram preenchidos corretamente.</div>';
+            } else {
+                resultado.innerHTML = '<div class="demo-error">❌ Erros encontrados:<br>' + erros.join('<br>') + '</div>';
+            }
+        }
+        
+        function simularErro() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = '<div class="demo-error">🚨 Erro simulado: Sistema temporariamente indisponível. Tente novamente em alguns minutos.</div>';
+            
+            // Simular erro no console
+            console.error('Erro simulado: Sistema indisponível');
+        }
+        
+        // Simular logs para demonstração
+        console.log('Página de demo carregada com sucesso');
+        console.warn('Aviso: Esta é uma página de demonstração');
+        
+        // Simular alguns eventos para captura de logs
+        setTimeout(() => {
+            console.log('Sistema inicializado');
+        }, 1000);
+        
+        setTimeout(() => {
+            console.log('Dados carregados do servidor');
+        }, 2000);
+    </script>
+</body>
+</html>
