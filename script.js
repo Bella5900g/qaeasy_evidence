@@ -41,6 +41,11 @@ class QAEasyEvidence {
             this.toggleSessao();
         });
 
+        // Botão de zerar timer
+        document.getElementById('btnZerarTimer').addEventListener('click', () => {
+            this.zerarTimer();
+        });
+
         // Botão de captura de screenshot
         document.getElementById('btnCapturarScreenshot').addEventListener('click', () => {
             this.capturarScreenshot();
@@ -123,6 +128,9 @@ class QAEasyEvidence {
         this.tempoInicioSessao = new Date();
         this.iniciarTimer();
 
+        // Mostrar botão de zerar timer
+        document.getElementById('btnZerarTimer').style.display = 'inline-block';
+
         // Salvar configuração atual se não estiver salva
         if (!this.configuracaoAtual) {
             this.salvarConfiguracao();
@@ -138,6 +146,15 @@ class QAEasyEvidence {
         this.sessaoAtiva = false;
         this.pararTimer();
         this.mostrarNotificacao('Sessão pausada!', 'info');
+    }
+
+    /**
+     * Zera o timer da sessão
+     */
+    zerarTimer() {
+        this.tempoInicioSessao = new Date();
+        this.atualizarTimer();
+        this.mostrarNotificacao('Timer zerado!', 'info');
     }
 
     /**
@@ -194,52 +211,19 @@ class QAEasyEvidence {
         try {
             this.mostrarLoading('Capturando screenshot...');
 
-            // Função para limpar todas as cores problemáticas
-            const limparCoresProblematicas = (element) => {
-                const computedStyle = window.getComputedStyle(element);
-                const colorProperties = [
-                    'color', 'backgroundColor', 'borderColor',
-                    'borderTopColor', 'borderRightColor',
-                    'borderBottomColor', 'borderLeftColor',
-                    'outlineColor', 'textDecorationColor'
-                ];
+            let screenshotData;
 
-                colorProperties.forEach(prop => {
-                    const value = computedStyle.getPropertyValue(prop);
-                    if (value && (value.includes('oklch') || value.includes('lch') || value.includes('hsl'))) {
-                        // Converter para RGB simples
-                        const tempDiv = document.createElement('div');
-                        tempDiv.style.color = value;
-                        document.body.appendChild(tempDiv);
-                        const rgbValue = window.getComputedStyle(tempDiv).color;
-                        document.body.removeChild(tempDiv);
-                        element.style.setProperty(prop, rgbValue, 'important');
-                    }
-                });
-            };
-
-            // Limpar cores problemáticas em todos os elementos antes da captura
-            const allElements = document.querySelectorAll('*');
-            allElements.forEach(limparCoresProblematicas);
-
-            // Capturar screenshot usando html2canvas com configurações mais simples
-            const canvas = await html2canvas(document.body, {
-                useCORS: false,
-                allowTaint: false,
-                scale: 0.8,
-                logging: false,
-                backgroundColor: '#ffffff',
-                removeContainer: true,
-                foreignObjectRendering: false,
-                ignoreElements: (element) => {
-                    // Ignorar elementos que podem causar problemas
-                    return element.tagName === 'SCRIPT' ||
-                           element.tagName === 'STYLE' ||
-                           element.classList.contains('no-capture');
+            // Tentar usar a API de captura de tela do navegador primeiro
+            if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+                try {
+                    screenshotData = await this.capturarComDisplayMedia();
+                } catch (erro) {
+                    console.warn('Display Media não disponível, usando html2canvas:', erro);
+                    screenshotData = await this.capturarComHtml2Canvas();
                 }
-            });
-
-            const screenshotData = canvas.toDataURL('image/png');
+            } else {
+                screenshotData = await this.capturarComHtml2Canvas();
+            }
 
             // Mostrar formulário de classificação
             this.mostrarFormularioClassificacao(screenshotData);
@@ -251,6 +235,92 @@ class QAEasyEvidence {
             this.mostrarNotificacao('Erro ao capturar screenshot. Tente novamente.', 'erro');
             this.ocultarLoading();
         }
+    }
+
+    /**
+     * Captura usando a API de Display Media (aba específica)
+     */
+    async capturarComDisplayMedia() {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+                mediaSource: 'screen',
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        });
+
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+
+        return new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                // Parar o stream
+                stream.getTracks().forEach(track => track.stop());
+
+                const screenshotData = canvas.toDataURL('image/png');
+                resolve(screenshotData);
+            };
+        });
+    }
+
+    /**
+     * Captura usando html2canvas (fallback)
+     */
+    async capturarComHtml2Canvas() {
+        // Função para limpar todas as cores problemáticas
+        const limparCoresProblematicas = (element) => {
+            const computedStyle = window.getComputedStyle(element);
+            const colorProperties = [
+                'color', 'backgroundColor', 'borderColor',
+                'borderTopColor', 'borderRightColor',
+                'borderBottomColor', 'borderLeftColor',
+                'outlineColor', 'textDecorationColor'
+            ];
+
+            colorProperties.forEach(prop => {
+                const value = computedStyle.getPropertyValue(prop);
+                if (value && (value.includes('oklch') || value.includes('lch') || value.includes('hsl'))) {
+                    // Converter para RGB simples
+                    const tempDiv = document.createElement('div');
+                    tempDiv.style.color = value;
+                    document.body.appendChild(tempDiv);
+                    const rgbValue = window.getComputedStyle(tempDiv).color;
+                    document.body.removeChild(tempDiv);
+                    element.style.setProperty(prop, rgbValue, 'important');
+                }
+            });
+        };
+
+        // Limpar cores problemáticas em todos os elementos antes da captura
+        const allElements = document.querySelectorAll('*');
+        allElements.forEach(limparCoresProblematicas);
+
+        // Capturar screenshot usando html2canvas com configurações mais simples
+        const canvas = await html2canvas(document.body, {
+            useCORS: false,
+            allowTaint: false,
+            scale: 0.8,
+            logging: false,
+            backgroundColor: '#ffffff',
+            removeContainer: true,
+            foreignObjectRendering: false,
+            ignoreElements: (element) => {
+                // Ignorar elementos que podem causar problemas
+                return element.tagName === 'SCRIPT' ||
+                       element.tagName === 'STYLE' ||
+                       element.classList.contains('no-capture');
+            }
+        });
+
+        return canvas.toDataURL('image/png');
     }
 
     /**
@@ -536,8 +606,10 @@ class QAEasyEvidence {
 
         let y = 90;
 
-        this.evidencias.forEach((evidencia, index) => {
-            if (y > 250) {
+        for (let index = 0; index < this.evidencias.length; index++) {
+            const evidencia = this.evidencias[index];
+
+            if (y > 200) {
                 doc.addPage();
                 y = 20;
             }
@@ -550,8 +622,30 @@ class QAEasyEvidence {
             doc.text(`Severidade: ${evidencia.severidade}`, 20, y + 20);
             doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y + 30);
 
-            y += 50;
-        });
+            // Adicionar screenshot se existir
+            if (evidencia.screenshot) {
+                try {
+                    // Redimensionar imagem para caber na página
+                    const imgWidth = 150;
+                    const imgHeight = 100;
+
+                    // Verificar se há espaço na página atual
+                    if (y + 50 + imgHeight > 280) {
+                        doc.addPage();
+                        y = 20;
+                    }
+
+                    doc.addImage(evidencia.screenshot, 'PNG', 20, y + 40, imgWidth, imgHeight);
+                    y += imgHeight + 60;
+                } catch (erro) {
+                    console.warn('Erro ao adicionar imagem ao PDF:', erro);
+                    doc.text('Screenshot não disponível', 20, y + 40);
+                    y += 50;
+                }
+            } else {
+                y += 50;
+            }
+        }
 
         return doc.output('blob');
     }

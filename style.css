@@ -100,6 +100,31 @@ body {
     gap: var(--espacamento-md);
 }
 
+.botoes-sessao {
+    display: flex;
+    gap: var(--espacamento-sm);
+    flex-wrap: wrap;
+}
+
+.btn-zerar {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: var(--espacamento-sm) var(--espacamento-md);
+    border-radius: var(--raio-borda);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transicao-rapida);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-zerar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
 .status-sessao {
     text-align: center;
 }

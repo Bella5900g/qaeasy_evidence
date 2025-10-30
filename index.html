@@ -23,7 +23,10 @@
                     <span class="status-indicador" id="statusIndicador">⏸️ Sessão Pausada</span>
                     <div class="timer-sessao" id="timerSessao">00:00:00</div>
                 </div>
-                <button class="btn-sessao" id="btnIniciarSessao">Iniciar Sessão</button>
+                <div class="botoes-sessao">
+                    <button class="btn-sessao" id="btnIniciarSessao">Iniciar Sessão</button>
+                    <button class="btn-sessao btn-zerar" id="btnZerarTimer" style="display: none;">⏹️ Zerar Timer</button>
+                </div>
             </div>
         </div>
     </header>
@@ -89,7 +92,7 @@
 
                 <div class="formulario-classificacao" id="formularioClassificacao">
                     <h3>Classificar Evidência</h3>
-                    
+
                     <div class="campo-grupo">
                         <label>Tipo de Evidência *</label>
                         <div class="opcoes-tipo">
