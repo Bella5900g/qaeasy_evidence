@@ -820,8 +820,34 @@ class QAEasyEvidence {
                 }
 
                 doc.setFontSize(14);
+
+                // Definir cor baseada no tipo de evidência
+                let corTipo;
+                switch (evidencia.tipo.toLowerCase()) {
+                    case 'pass':
+                        corTipo = [34, 197, 94]; // Verde
+                        break;
+                    case 'bug':
+                        corTipo = [239, 68, 68]; // Vermelho
+                        break;
+                    case 'improvement':
+                        corTipo = [245, 158, 11]; // Amarelo
+                        break;
+                    case 'info':
+                        corTipo = [59, 130, 246]; // Azul
+                        break;
+                    default:
+                        corTipo = [107, 114, 128]; // Cinza
+                }
+
+                // Aplicar cor ao texto do tipo
+                doc.setTextColor(corTipo[0], corTipo[1], corTipo[2]);
+
                 const tipoTexto = `${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`;
                 doc.text(tipoTexto, 20, y);
+
+                // Voltar cor para preto para o resto do texto
+                doc.setTextColor(0, 0, 0);
                 y += 15;
 
                 doc.setFontSize(10);
@@ -833,7 +859,31 @@ class QAEasyEvidence {
                 );
                 y += alturaDescricao + 10; // Espaço extra após descrição
 
-                doc.text(`Severidade: ${evidencia.severidade}`, 20, y);
+                // Definir cor baseada na severidade
+                let corSeveridade;
+                switch (evidencia.severidade.toLowerCase()) {
+                    case 'baixa':
+                        corSeveridade = [34, 197, 94]; // Verde
+                        break;
+                    case 'media':
+                        corSeveridade = [245, 158, 11]; // Amarelo
+                        break;
+                    case 'alta':
+                        corSeveridade = [239, 68, 68]; // Vermelho
+                        break;
+                    case 'critica':
+                        corSeveridade = [185, 28, 28]; // Vermelho escuro
+                        break;
+                    default:
+                        corSeveridade = [107, 114, 128]; // Cinza
+                }
+
+                // Aplicar cor à severidade
+                doc.setTextColor(corSeveridade[0], corSeveridade[1], corSeveridade[2]);
+                doc.text(`Severidade: ${evidencia.severidade.toUpperCase()}`, 20, y);
+
+                // Voltar cor para preto
+                doc.setTextColor(0, 0, 0);
                 y += 10;
 
                 doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y);
