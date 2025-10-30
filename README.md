@@ -179,12 +179,16 @@ python -m http.server 8000
 npx serve .
 ```
 
-## 🔒 Privacidade
+## 🔒 Privacidade e Segurança
 
-- **Dados locais:** Tudo no navegador (localStorage)
-- **Sem servidor:** Nenhum dado externo
-- **Screenshots:** Capturados localmente
-- **Logs:** Armazenados localmente
+Esta ferramenta é 100% client-side. Nenhum dado sai do seu dispositivo.
+
+- ✅ Cada usuário tem seus próprios dados
+- ✅ LocalStorage é individual por navegador
+- ✅ Nenhum compartilhamento entre usuários
+- ✅ Dados ficam locais no dispositivo
+- ✅ Sem servidores, sem backend, sem coleta
+- ✅ Funciona online e offline após o carregamento
 
 ## 📞 Suporte
 
