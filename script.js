@@ -1266,12 +1266,12 @@ class QAEasyEvidence {
 
     getIconeTipo(tipo) {
         const icones = {
-            'pass': '✓',
-            'bug': '✗',
-            'improvement': '★',
-            'info': '●'
+            'pass': '[OK]',
+            'bug': '[BUG]',
+            'improvement': '[MEL]',
+            'info': '[INF]'
         };
-        return icones[tipo] || '○';
+        return icones[tipo] || '[N/A]';
     }
 
     /**
