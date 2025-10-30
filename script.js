@@ -46,6 +46,11 @@ class QAEasyEvidence {
             this.zerarTimer();
         });
 
+        // Botão de limpar evidências antigas
+        document.getElementById('btnLimparEvidenciasAntigas').addEventListener('click', () => {
+            this.limparEvidenciasAntigas();
+        });
+
         // Botão de captura de screenshot
         document.getElementById('btnCapturarScreenshot').addEventListener('click', () => {
             this.capturarScreenshot();
@@ -877,11 +882,11 @@ class QAEasyEvidence {
                     default:
                         corSeveridade = '#6B7280'; // Cinza
                 }
-                
+
                 // Aplicar cor à severidade
                 doc.setTextColor(corSeveridade);
                 doc.text(`Severidade: ${evidencia.severidade.toUpperCase()}`, 20, y);
-                
+
                 // Voltar cor para preto
                 doc.setTextColor('#000000');
                 y += 10;
@@ -1148,17 +1153,80 @@ class QAEasyEvidence {
     }
 
     /**
-     * Salva dados no localStorage
+     * Salva dados no localStorage com otimização
      */
     salvarDados() {
-        const dados = {
-            evidencias: this.evidencias,
-            configuracaoAtual: this.configuracaoAtual,
-            sessaoAtiva: this.sessaoAtiva,
-            tempoInicioSessao: this.tempoInicioSessao
-        };
+        try {
+            // Otimizar evidências removendo screenshots antigos se necessário
+            const evidenciasOtimizadas = this.otimizarEvidencias();
 
-        localStorage.setItem('qaEasyEvidence', JSON.stringify(dados));
+            const dados = {
+                evidencias: evidenciasOtimizadas,
+                configuracaoAtual: this.configuracaoAtual,
+                sessaoAtiva: this.sessaoAtiva,
+                tempoInicioSessao: this.tempoInicioSessao
+            };
+
+            const dadosString = JSON.stringify(dados);
+
+            // Verificar se os dados cabem no localStorage
+            if (dadosString.length > 4 * 1024 * 1024) { // 4MB limite
+                this.limparEvidenciasAntigas();
+                // Tentar novamente com dados otimizados
+                const dadosOtimizados = {
+                    evidencias: this.evidencias.slice(-20), // Manter apenas as últimas 20 evidências
+                    configuracaoAtual: this.configuracaoAtual,
+                    sessaoAtiva: this.sessaoAtiva,
+                    tempoInicioSessao: this.tempoInicioSessao
+                };
+                localStorage.setItem('qaEasyEvidence', JSON.stringify(dadosOtimizados));
+                this.mostrarNotificacao('Dados otimizados para caber no armazenamento local', 'info');
+            } else {
+                localStorage.setItem('qaEasyEvidence', dadosString);
+            }
+        } catch (erro) {
+            console.error('Erro ao salvar dados:', erro);
+            this.mostrarNotificacao('Erro ao salvar dados localmente! Limpe evidências antigas.', 'erro');
+        }
+    }
+
+    /**
+     * Otimiza evidências removendo screenshots antigos
+     */
+    otimizarEvidencias() {
+        const maxEvidencias = 50; // Máximo de evidências a manter
+        const maxScreenshots = 20; // Máximo de screenshots a manter
+
+        if (this.evidencias.length <= maxEvidencias) {
+            return this.evidencias;
+        }
+
+        // Manter apenas as evidências mais recentes
+        const evidenciasRecentes = this.evidencias.slice(-maxEvidencias);
+
+        // Remover screenshots das evidências mais antigas
+        return evidenciasRecentes.map((evidencia, index) => {
+            if (index < maxScreenshots) {
+                return evidencia; // Manter screenshot
+            } else {
+                // Remover screenshot para economizar espaço
+                const { screenshot, ...evidenciaSemScreenshot } = evidencia;
+                return {
+                    ...evidenciaSemScreenshot,
+                    screenshot: null,
+                    semScreenshot: true
+                };
+            }
+        });
+    }
+
+    /**
+     * Limpa evidências antigas para liberar espaço
+     */
+    limparEvidenciasAntigas() {
+        // Manter apenas as últimas 10 evidências
+        this.evidencias = this.evidencias.slice(-10);
+        this.mostrarNotificacao('Evidências antigas removidas para liberar espaço', 'info');
     }
 
     /**

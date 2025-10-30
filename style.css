@@ -280,6 +280,25 @@ h3 {
     transform: translateY(-1px);
 }
 
+.btn-aviso {
+    background: rgba(245, 158, 11, 0.2);
+    border: 2px solid rgba(245, 158, 11, 0.4);
+    color: #F59E0B;
+    padding: var(--espacamento-sm) var(--espacamento-md);
+    border-radius: var(--raio-borda);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transicao-rapida);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-aviso:hover {
+    background: rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.6);
+    transform: translateY(-1px);
+}
+
 /* ===== SEÇÃO DE CAPTURA ===== */
 .painel-captura {
     background: var(--cor-fundo-card);
