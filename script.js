@@ -194,6 +194,20 @@ class QAEasyEvidence {
         try {
             this.mostrarLoading('Capturando screenshot...');
 
+            // Função para converter cores oklch para rgb
+            const convertOklchToRgb = (colorValue) => {
+                if (!colorValue || !colorValue.includes('oklch')) {
+                    return colorValue;
+                }
+
+                // Converter oklch para rgb usando canvas temporário
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = colorValue;
+                const computedColor = ctx.fillStyle;
+                return computedColor;
+            };
+
             // Capturar screenshot usando html2canvas
             const canvas = await html2canvas(document.body, {
                 useCORS: true,
@@ -209,13 +223,52 @@ class QAEasyEvidence {
                     const allElements = clonedDoc.querySelectorAll('*');
                     allElements.forEach((el) => {
                         const computedStyle = window.getComputedStyle(el);
-                        if (computedStyle.color) {
-                            el.style.color = computedStyle.color;
-                        }
-                        if (computedStyle.backgroundColor) {
-                            el.style.backgroundColor = computedStyle.backgroundColor;
-                        }
+
+                        // Converter todas as propriedades de cor
+                        const colorProperties = [
+                            'color', 'backgroundColor', 'borderColor',
+                            'borderTopColor', 'borderRightColor',
+                            'borderBottomColor', 'borderLeftColor',
+                            'outlineColor', 'textDecorationColor',
+                            'textShadow', 'boxShadow'
+                        ];
+
+                        colorProperties.forEach(prop => {
+                            const value = computedStyle.getPropertyValue(prop);
+                            if (value && value.includes('oklch')) {
+                                const convertedColor = convertOklchToRgb(value);
+                                el.style.setProperty(prop, convertedColor, 'important');
+                            }
+                        });
                     });
+
+                    // Também corrigir estilos inline
+                    const styleSheets = clonedDoc.styleSheets;
+                    for (let i = 0; i < styleSheets.length; i++) {
+                        try {
+                            const rules = styleSheets[i].cssRules;
+                            for (let j = 0; j < rules.length; j++) {
+                                const rule = rules[j];
+                                if (rule.style) {
+                                    const colorProperties = [
+                                        'color', 'background-color', 'border-color',
+                                        'outline-color', 'text-decoration-color'
+                                    ];
+
+                                    colorProperties.forEach(prop => {
+                                        const value = rule.style.getPropertyValue(prop);
+                                        if (value && value.includes('oklch')) {
+                                            const convertedColor = convertOklchToRgb(value);
+                                            rule.style.setProperty(prop, convertedColor, 'important');
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            // Ignorar erros de CORS
+                            console.warn('Não foi possível acessar stylesheet:', e);
+                        }
+                    }
                 }
             });
 

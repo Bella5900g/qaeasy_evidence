@@ -6,31 +6,31 @@
 }
 
 :root {
-    /* Cores Principais */
-    --cor-primaria: #2563eb;
-    --cor-primaria-escura: #1d4ed8;
-    --cor-secundaria: #64748b;
-    --cor-sucesso: #10b981;
-    --cor-erro: #ef4444;
-    --cor-aviso: #f59e0b;
-    --cor-info: #3b82f6;
-    
+    /* Cores Principais - RGB compatível com html2canvas */
+    --cor-primaria: rgb(37, 99, 235);
+    --cor-primaria-escura: rgb(29, 78, 216);
+    --cor-secundaria: rgb(100, 116, 139);
+    --cor-sucesso: rgb(16, 185, 129);
+    --cor-erro: rgb(239, 68, 68);
+    --cor-aviso: rgb(245, 158, 11);
+    --cor-info: rgb(59, 130, 246);
+
     /* Cores de Fundo */
-    --cor-fundo: #f8fafc;
-    --cor-fundo-card: #ffffff;
-    --cor-fundo-input: #f1f5f9;
-    --cor-borda: #e2e8f0;
-    
+    --cor-fundo: rgb(248, 250, 252);
+    --cor-fundo-card: rgb(255, 255, 255);
+    --cor-fundo-input: rgb(241, 245, 249);
+    --cor-borda: rgb(226, 232, 240);
+
     /* Cores de Texto */
-    --cor-texto-principal: #1e293b;
-    --cor-texto-secundario: #64748b;
-    --cor-texto-claro: #94a3b8;
-    
+    --cor-texto-principal: rgb(30, 41, 59);
+    --cor-texto-secundario: rgb(100, 116, 139);
+    --cor-texto-claro: rgb(148, 163, 184);
+
     /* Sombras */
     --sombra-leve: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --sombra-media: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --sombra-forte: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    
+
     /* Espaçamentos */
     --espacamento-xs: 0.25rem;
     --espacamento-sm: 0.5rem;
@@ -38,12 +38,12 @@
     --espacamento-lg: 1.5rem;
     --espacamento-xl: 2rem;
     --espacamento-2xl: 3rem;
-    
+
     /* Bordas */
     --raio-borda: 0.5rem;
     --raio-borda-sm: 0.25rem;
     --raio-borda-lg: 0.75rem;
-    
+
     /* Transições */
     --transicao-rapida: 0.15s ease-in-out;
     --transicao-normal: 0.3s ease-in-out;
@@ -657,39 +657,39 @@ h3 {
     .container {
         padding: 0 var(--espacamento-sm);
     }
-    
+
     .header-principal .container {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .status-area {
         flex-direction: column;
         gap: var(--espacamento-sm);
     }
-    
+
     .opcoes-tipo {
         grid-template-columns: 1fr;
     }
-    
+
     .botoes-relatorio {
         grid-template-columns: 1fr;
     }
-    
+
     .cards-metricas {
         grid-template-columns: 1fr;
     }
-    
+
     .footer-principal .container {
         grid-template-columns: 1fr;
         gap: var(--espacamento-lg);
     }
-    
+
     .filtros-gallery {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .filtros-gallery select,
     .filtros-gallery input {
         width: 100%;
@@ -700,12 +700,12 @@ h3 {
     .logo-area h1 {
         font-size: 1.5rem;
     }
-    
+
     .btn-captura-principal {
         padding: var(--espacamento-md) var(--espacamento-lg);
         font-size: 1rem;
     }
-    
+
     .formulario-configuracao,
     .painel-captura,
     .painel-relatorios {
