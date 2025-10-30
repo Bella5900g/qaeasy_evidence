@@ -209,19 +209,24 @@ class QAEasyEvidence {
         }
 
         try {
-            this.mostrarLoading('Capturando screenshot...');
+            this.mostrarLoading('Preparando captura de tela...');
 
             let screenshotData;
 
             // Tentar usar a API de captura de tela do navegador primeiro
             if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
                 try {
+                    this.ocultarLoading();
+                    this.mostrarNotificacao('Selecione a aba que deseja capturar na janela que abrirá', 'info');
+
                     screenshotData = await this.capturarComDisplayMedia();
                 } catch (erro) {
                     console.warn('Display Media não disponível, usando html2canvas:', erro);
+                    this.mostrarLoading('Capturando com método alternativo...');
                     screenshotData = await this.capturarComHtml2Canvas();
                 }
             } else {
+                this.mostrarLoading('Capturando com método alternativo...');
                 screenshotData = await this.capturarComHtml2Canvas();
             }
 
@@ -243,17 +248,18 @@ class QAEasyEvidence {
     async capturarComDisplayMedia() {
         const stream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-                mediaSource: 'screen',
+                mediaSource: 'browser', // Especifica que queremos capturar abas do navegador
                 width: { ideal: 1920 },
                 height: { ideal: 1080 }
-            }
+            },
+            audio: false // Não capturar áudio
         });
 
         const video = document.createElement('video');
         video.srcObject = stream;
         video.play();
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             video.onloadedmetadata = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
@@ -268,6 +274,17 @@ class QAEasyEvidence {
                 const screenshotData = canvas.toDataURL('image/png');
                 resolve(screenshotData);
             };
+
+            video.onerror = (error) => {
+                stream.getTracks().forEach(track => track.stop());
+                reject(error);
+            };
+
+            // Timeout de segurança
+            setTimeout(() => {
+                stream.getTracks().forEach(track => track.stop());
+                reject(new Error('Timeout na captura de tela'));
+            }, 10000);
         });
     }
 
