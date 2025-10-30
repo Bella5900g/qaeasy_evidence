@@ -1002,6 +1002,22 @@ class QAEasyEvidence {
             'usabilidade': {
                 tags: ['usabilidade', 'ux', 'interface'],
                 descricao: 'Teste de usabilidade e experiência do usuário'
+            },
+            'contrato': {
+                tags: ['contrato', 'api', 'integração'],
+                descricao: 'Teste de contrato de API e integrações'
+            },
+            'funcionais': {
+                tags: ['funcional', 'requisitos', 'negocio'],
+                descricao: 'Teste funcional baseado em requisitos de negócio'
+            },
+            'acessibilidade': {
+                tags: ['acessibilidade', 'wcag', 'inclusao'],
+                descricao: 'Teste de acessibilidade e inclusão digital'
+            },
+            'e2e': {
+                tags: ['e2e', 'end-to-end', 'fluxo-completo'],
+                descricao: 'Teste end-to-end de fluxos completos'
             }
         };
 
