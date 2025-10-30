@@ -389,8 +389,8 @@ class QAEasyEvidence {
             id: this.gerarIdUnico(),
             tipo: tipoEvidencia.value,
             severidade: document.getElementById('severidade').value,
-            descricao: this.limparTexto(descricao),
-            cenario: this.limparTexto(cenarioEvidencia), // Cenário específico desta evidência
+            descricao: descricao, // Preservar acentos
+            cenario: cenarioEvidencia, // Preservar acentos
             timestamp: new Date().toISOString(),
             screenshot: this.screenshotTemporario,
             logs: [...this.logsConsole],
@@ -435,10 +435,10 @@ class QAEasyEvidence {
 
         this.configuracaoAtual = {
             projeto,
-            funcionalidade: this.limparTexto(funcionalidade),
-            versao: versao ? this.limparTexto(versao) : null,
-            tarefa: tarefa ? this.limparTexto(tarefa) : null,
-            prerequisitos: prerequisitos ? this.limparTexto(prerequisitos) : null,
+            funcionalidade: funcionalidade, // Preservar acentos
+            versao: versao || null, // Preservar acentos
+            tarefa: tarefa || null, // Preservar acentos
+            prerequisitos: prerequisitos || null, // Preservar acentos
             template,
             tags,
             timestamp: new Date().toISOString()
@@ -633,10 +633,9 @@ class QAEasyEvidence {
      */
     limparTexto(texto) {
         if (!texto) return '';
-        
-        // Apenas remover caracteres realmente problemáticos, mantendo acentos
+
+        // Não limpar texto para preservar acentos - apenas remover espaços extras
         return texto
-            .replace(/[^\w\s\-.,:;!?()áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]/g, '') // Remove apenas caracteres especiais problemáticos
             .replace(/\s+/g, ' ') // Remove espaços múltiplos
             .trim();
     }
@@ -653,8 +652,8 @@ class QAEasyEvidence {
 
         // Função para quebrar texto em linhas
         const quebrarTexto = (texto, larguraMaxima) => {
-            const textoLimpo = this.limparTexto(texto);
-            const palavras = textoLimpo.split(' ');
+            // Usar texto original sem limpeza para preservar acentos
+            const palavras = texto.split(' ');
             const linhas = [];
             let linhaAtual = '';
 
@@ -727,16 +726,19 @@ class QAEasyEvidence {
             );
             yInfo += alturaTarefa;
         }
-        
+
         // Pré-requisitos com quebra de linha
         if (this.configuracaoAtual?.prerequisitos) {
+            console.log('Pré-requisitos encontrados:', this.configuracaoAtual.prerequisitos);
             const alturaPrerequisitos = adicionarTextoQuebrado(
                 `Pré-requisitos: ${this.configuracaoAtual.prerequisitos}`,
                 20, yInfo, larguraMaxima
             );
             yInfo += alturaPrerequisitos;
+        } else {
+            console.log('Nenhum pré-requisito encontrado');
         }
-        
+
         doc.text(`Data: ${this.formatarData(new Date())}`, 20, yInfo);
         doc.text(`Total de Evidências: ${this.evidencias.length}`, 20, yInfo + 10);
 
