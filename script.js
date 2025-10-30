@@ -503,7 +503,7 @@ class QAEasyEvidence {
                 <img src="${evidencia.screenshot}" alt="Screenshot da evidência" class="evidence-preview">
                 <div class="evidence-content">
                     <div class="evidence-header">
-                        <span class="evidence-type">${this.getIconeTipo(evidencia.tipo)}</span>
+                        <span class="evidence-type">${this.getIconeTipo(evidencia.tipo)} ${this.traduzirTipoEvidencia(evidencia.tipo)}</span>
                         <span class="evidence-timestamp">${this.formatarData(evidencia.timestamp)}</span>
                     </div>
                     <div class="evidence-scenario">
@@ -848,7 +848,7 @@ class QAEasyEvidence {
                 // Aplicar cor ao texto do tipo usando setTextColor com hex
                 doc.setTextColor(corTipo);
 
-                const tipoTexto = `${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`;
+                const tipoTexto = `${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${this.traduzirTipoEvidencia(evidencia.tipo)}`;
                 doc.text(tipoTexto, 20, y);
 
                 // Voltar cor para preto para o resto do texto
@@ -976,7 +976,7 @@ class QAEasyEvidence {
             markdown += `## 📋 Cenário: ${cenario}\n\n`;
 
             evidencias.forEach((evidencia) => {
-                markdown += `### ${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}\n\n`;
+                markdown += `### ${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${this.traduzirTipoEvidencia(evidencia.tipo)}\n\n`;
                 markdown += `**Descrição:** ${evidencia.descricao}\n\n`;
                 markdown += `**Severidade:** ${evidencia.severidade}\n\n`;
                 markdown += `**Data/Hora:** ${this.formatarData(evidencia.timestamp)}\n\n`;
@@ -1263,12 +1263,25 @@ class QAEasyEvidence {
 
     getIconeTipo(tipo) {
         const icones = {
-            'pass': '✅',
-            'bug': '🔴',
-            'improvement': '🟡',
-            'info': '🔵'
+            'pass': '✓',
+            'bug': '✗',
+            'improvement': '★',
+            'info': '●'
         };
-        return icones[tipo] || '❓';
+        return icones[tipo] || '○';
+    }
+
+    /**
+     * Traduz o tipo de evidência para português
+     */
+    traduzirTipoEvidencia(tipo) {
+        const traducoes = {
+            'pass': 'PASSOU',
+            'bug': 'BUG',
+            'improvement': 'MELHORIA',
+            'info': 'INFO'
+        };
+        return traducoes[tipo] || tipo.toUpperCase();
     }
 
     formatarData(data) {
