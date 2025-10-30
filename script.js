@@ -650,33 +650,64 @@ class QAEasyEvidence {
         // Configurar fonte para suportar caracteres especiais
         doc.setFont('helvetica', 'normal');
 
-        // Função para quebrar texto em linhas
+        // Função para quebrar texto em linhas de forma inteligente
         const quebrarTexto = (texto, larguraMaxima) => {
-            // Usar texto original sem limpeza para preservar acentos
-            const palavras = texto.split(' ');
+            if (!texto) return [];
+
+            // Dividir por quebras de linha existentes primeiro
+            const paragrafos = texto.split('\n');
             const linhas = [];
-            let linhaAtual = '';
 
-            for (const palavra of palavras) {
-                const textoTeste = linhaAtual + (linhaAtual ? ' ' : '') + palavra;
-                const larguraTexto = doc.getTextWidth(textoTeste);
+            for (const paragrafo of paragrafos) {
+                if (paragrafo.trim() === '') {
+                    linhas.push('');
+                    continue;
+                }
 
-                if (larguraTexto <= larguraMaxima) {
-                    linhaAtual = textoTeste;
-                } else {
-                    if (linhaAtual) {
-                        linhas.push(linhaAtual);
-                        linhaAtual = palavra;
+                const palavras = paragrafo.trim().split(/\s+/);
+                let linhaAtual = '';
+
+                for (let i = 0; i < palavras.length; i++) {
+                    const palavra = palavras[i];
+                    const textoTeste = linhaAtual + (linhaAtual ? ' ' : '') + palavra;
+                    const larguraTexto = doc.getTextWidth(textoTeste);
+
+                    if (larguraTexto <= larguraMaxima) {
+                        linhaAtual = textoTeste;
                     } else {
-                        // Palavra muito longa, quebrar forçadamente
-                        linhas.push(palavra.substring(0, 50) + '...');
-                        linhaAtual = palavra.substring(50);
+                        if (linhaAtual) {
+                            linhas.push(linhaAtual);
+                            linhaAtual = palavra;
+                        } else {
+                            // Palavra muito longa, quebrar por caracteres
+                            let palavraQuebrada = palavra;
+                            while (palavraQuebrada.length > 0) {
+                                let parte = '';
+                                for (let j = 0; j < palavraQuebrada.length; j++) {
+                                    const teste = parte + palavraQuebrada[j];
+                                    if (doc.getTextWidth(teste) <= larguraMaxima) {
+                                        parte = teste;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                if (parte.length === 0) {
+                                    // Se nem um caractere cabe, quebrar forçadamente
+                                    parte = palavraQuebrada.substring(0, Math.min(30, palavraQuebrada.length));
+                                    palavraQuebrada = palavraQuebrada.substring(parte.length);
+                                } else {
+                                    palavraQuebrada = palavraQuebrada.substring(parte.length);
+                                }
+                                linhas.push(parte);
+                            }
+                            linhaAtual = '';
+                        }
                     }
                 }
-            }
 
-            if (linhaAtual) {
-                linhas.push(linhaAtual);
+                if (linhaAtual) {
+                    linhas.push(linhaAtual);
+                }
             }
 
             return linhas;
@@ -686,13 +717,18 @@ class QAEasyEvidence {
         const adicionarTextoQuebrado = (texto, x, y, larguraMaxima = 170) => {
             const linhas = quebrarTexto(texto, larguraMaxima);
             let yAtual = y;
+            const espacamentoLinha = 6; // Espaçamento entre linhas
 
             for (const linha of linhas) {
-                doc.text(linha, x, yAtual);
-                yAtual += 5;
+                if (linha.trim() === '') {
+                    yAtual += espacamentoLinha / 2; // Espaço menor para linhas vazias
+                } else {
+                    doc.text(linha, x, yAtual);
+                    yAtual += espacamentoLinha;
+                }
             }
 
-            return yAtual - y + 5; // Retorna altura total usada
+            return yAtual - y; // Retorna altura total usada
         };
 
         // Cabeçalho
@@ -785,10 +821,10 @@ class QAEasyEvidence {
                     `Descrição: ${evidencia.descricao}`,
                     20, y, larguraMaxima
                 );
-                y += alturaDescricao;
+                y += alturaDescricao + 5; // Espaço extra após descrição
 
                 doc.text(`Severidade: ${evidencia.severidade}`, 20, y);
-                y += 10;
+                y += 8;
 
                 doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y);
                 y += 15;
