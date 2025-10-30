@@ -389,8 +389,8 @@ class QAEasyEvidence {
             id: this.gerarIdUnico(),
             tipo: tipoEvidencia.value,
             severidade: document.getElementById('severidade').value,
-            descricao: descricao,
-            cenario: cenarioEvidencia, // Cenário específico desta evidência
+            descricao: this.limparTexto(descricao),
+            cenario: this.limparTexto(cenarioEvidencia), // Cenário específico desta evidência
             timestamp: new Date().toISOString(),
             screenshot: this.screenshotTemporario,
             logs: [...this.logsConsole],
@@ -435,10 +435,10 @@ class QAEasyEvidence {
 
         this.configuracaoAtual = {
             projeto,
-            funcionalidade,
-            versao: versao || null,
-            tarefa: tarefa || null,
-            prerequisitos: prerequisitos || null,
+            funcionalidade: this.limparTexto(funcionalidade),
+            versao: versao ? this.limparTexto(versao) : null,
+            tarefa: tarefa ? this.limparTexto(tarefa) : null,
+            prerequisitos: prerequisitos ? this.limparTexto(prerequisitos) : null,
             template,
             tags,
             timestamp: new Date().toISOString()
@@ -628,11 +628,72 @@ class QAEasyEvidence {
     }
 
     /**
+     * Limpa caracteres especiais que podem causar problemas de codificação
+     */
+    limparTexto(texto) {
+        if (!texto) return '';
+
+        return texto
+            .replace(/[^\x00-\x7F]/g, '') // Remove caracteres não-ASCII
+            .replace(/[^\w\s\-.,:;!?()]/g, '') // Remove caracteres especiais exceto pontuação básica
+            .replace(/\s+/g, ' ') // Remove espaços múltiplos
+            .trim();
+    }
+
+    /**
      * Gera relatório em PDF
      */
     async gerarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+
+        // Configurar fonte para suportar caracteres especiais
+        doc.setFont('helvetica', 'normal');
+
+        // Função para quebrar texto em linhas
+        const quebrarTexto = (texto, larguraMaxima) => {
+            const textoLimpo = this.limparTexto(texto);
+            const palavras = textoLimpo.split(' ');
+            const linhas = [];
+            let linhaAtual = '';
+
+            for (const palavra of palavras) {
+                const textoTeste = linhaAtual + (linhaAtual ? ' ' : '') + palavra;
+                const larguraTexto = doc.getTextWidth(textoTeste);
+
+                if (larguraTexto <= larguraMaxima) {
+                    linhaAtual = textoTeste;
+                } else {
+                    if (linhaAtual) {
+                        linhas.push(linhaAtual);
+                        linhaAtual = palavra;
+                    } else {
+                        // Palavra muito longa, quebrar forçadamente
+                        linhas.push(palavra.substring(0, 50) + '...');
+                        linhaAtual = palavra.substring(50);
+                    }
+                }
+            }
+
+            if (linhaAtual) {
+                linhas.push(linhaAtual);
+            }
+
+            return linhas;
+        };
+
+        // Função para adicionar texto com quebra de linha
+        const adicionarTextoQuebrado = (texto, x, y, larguraMaxima = 170) => {
+            const linhas = quebrarTexto(texto, larguraMaxima);
+            let yAtual = y;
+
+            for (const linha of linhas) {
+                doc.text(linha, x, yAtual);
+                yAtual += 5;
+            }
+
+            return yAtual - y + 5; // Retorna altura total usada
+        };
 
         // Cabeçalho
         doc.setFontSize(20);
@@ -640,16 +701,30 @@ class QAEasyEvidence {
 
         doc.setFontSize(12);
         doc.text(`Projeto: ${this.configuracaoAtual?.projeto || 'Não definido'}`, 20, 50);
-        doc.text(`Funcionalidade: ${this.configuracaoAtual?.funcionalidade || 'Não definida'}`, 20, 60);
 
-        let yInfo = 70;
+        let yInfo = 60;
+        const larguraMaxima = 170;
+
+        // Funcionalidade com quebra de linha
+        const alturaFuncionalidade = adicionarTextoQuebrado(
+            `Funcionalidade: ${this.configuracaoAtual?.funcionalidade || 'Não definida'}`,
+            20, yInfo, larguraMaxima
+        );
+        yInfo += alturaFuncionalidade;
+
+        // Versão
         if (this.configuracaoAtual?.versao) {
             doc.text(`Versão: ${this.configuracaoAtual.versao}`, 20, yInfo);
             yInfo += 10;
         }
+
+        // Tarefa com quebra de linha
         if (this.configuracaoAtual?.tarefa) {
-            doc.text(`Tarefa: ${this.configuracaoAtual.tarefa}`, 20, yInfo);
-            yInfo += 10;
+            const alturaTarefa = adicionarTextoQuebrado(
+                `Tarefa: ${this.configuracaoAtual.tarefa}`,
+                20, yInfo, larguraMaxima
+            );
+            yInfo += alturaTarefa;
         }
 
         doc.text(`Data: ${this.formatarData(new Date())}`, 20, yInfo);
@@ -658,7 +733,7 @@ class QAEasyEvidence {
         // Agrupar evidências por cenário
         const evidenciasPorCenario = this.agruparEvidenciasPorCenario();
 
-        let y = 90;
+        let y = yInfo + 30;
         let contadorGeral = 1;
 
         // Iterar por cada cenário
@@ -671,10 +746,13 @@ class QAEasyEvidence {
 
             doc.setFontSize(16);
             doc.setTextColor(37, 99, 235); // Cor azul
-            doc.text(`📋 Cenário: ${cenario}`, 20, y);
+            const alturaCenario = adicionarTextoQuebrado(
+                `Cenário: ${cenario}`,
+                20, y, larguraMaxima
+            );
             doc.setTextColor(0, 0, 0); // Voltar ao preto
 
-            y += 15;
+            y += alturaCenario + 10;
 
             // Evidências deste cenário
             for (const evidencia of evidencias) {
@@ -684,12 +762,24 @@ class QAEasyEvidence {
                 }
 
                 doc.setFontSize(14);
-                doc.text(`${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`, 20, y);
+                const tipoTexto = `${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`;
+                doc.text(tipoTexto, 20, y);
+                y += 15;
 
                 doc.setFontSize(10);
-                doc.text(`Descrição: ${evidencia.descricao}`, 20, y + 10);
-                doc.text(`Severidade: ${evidencia.severidade}`, 20, y + 20);
-                doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y + 30);
+
+                // Descrição com quebra de linha
+                const alturaDescricao = adicionarTextoQuebrado(
+                    `Descrição: ${evidencia.descricao}`,
+                    20, y, larguraMaxima
+                );
+                y += alturaDescricao;
+
+                doc.text(`Severidade: ${evidencia.severidade}`, 20, y);
+                y += 10;
+
+                doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y);
+                y += 15;
 
                 // Adicionar screenshot se existir
                 if (evidencia.screenshot) {
@@ -699,22 +789,21 @@ class QAEasyEvidence {
                         const imgHeight = 100;
 
                         // Verificar se há espaço na página atual
-                        if (y + 50 + imgHeight > 280) {
+                        if (y + imgHeight > 280) {
                             doc.addPage();
                             y = 20;
                         }
 
-                        doc.addImage(evidencia.screenshot, 'PNG', 20, y + 40, imgWidth, imgHeight);
-                        y += imgHeight + 60;
+                        doc.addImage(evidencia.screenshot, 'PNG', 20, y, imgWidth, imgHeight);
+                        y += imgHeight + 20;
                     } catch (erro) {
                         console.warn('Erro ao adicionar imagem ao PDF:', erro);
-                        doc.text('Screenshot não disponível', 20, y + 40);
-                        y += 50;
+                        doc.text('Screenshot não disponível', 20, y);
+                        y += 20;
                     }
-                } else {
-                    y += 50;
                 }
 
+                y += 10; // Espaço entre evidências
                 contadorGeral++;
             }
 
