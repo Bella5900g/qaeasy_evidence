@@ -825,29 +825,29 @@ class QAEasyEvidence {
                 let corTipo;
                 switch (evidencia.tipo.toLowerCase()) {
                     case 'pass':
-                        corTipo = [34, 197, 94]; // Verde
+                        corTipo = '#22C55E'; // Verde
                         break;
                     case 'bug':
-                        corTipo = [239, 68, 68]; // Vermelho
+                        corTipo = '#EF4444'; // Vermelho
                         break;
                     case 'improvement':
-                        corTipo = [245, 158, 11]; // Amarelo
+                        corTipo = '#F59E0B'; // Amarelo
                         break;
                     case 'info':
-                        corTipo = [59, 130, 246]; // Azul
+                        corTipo = '#3B82F6'; // Azul
                         break;
                     default:
-                        corTipo = [107, 114, 128]; // Cinza
+                        corTipo = '#6B7280'; // Cinza
                 }
 
-                // Aplicar cor ao texto do tipo
-                doc.setTextColor(corTipo[0], corTipo[1], corTipo[2]);
+                // Aplicar cor ao texto do tipo usando setTextColor com hex
+                doc.setTextColor(corTipo);
 
                 const tipoTexto = `${contadorGeral}. ${this.getIconeTipo(evidencia.tipo)} ${evidencia.tipo.toUpperCase()}`;
                 doc.text(tipoTexto, 20, y);
 
                 // Voltar cor para preto para o resto do texto
-                doc.setTextColor(0, 0, 0);
+                doc.setTextColor('#000000');
                 y += 15;
 
                 doc.setFontSize(10);
@@ -863,27 +863,27 @@ class QAEasyEvidence {
                 let corSeveridade;
                 switch (evidencia.severidade.toLowerCase()) {
                     case 'baixa':
-                        corSeveridade = [34, 197, 94]; // Verde
+                        corSeveridade = '#22C55E'; // Verde
                         break;
                     case 'media':
-                        corSeveridade = [245, 158, 11]; // Amarelo
+                        corSeveridade = '#F59E0B'; // Amarelo
                         break;
                     case 'alta':
-                        corSeveridade = [239, 68, 68]; // Vermelho
+                        corSeveridade = '#EF4444'; // Vermelho
                         break;
                     case 'critica':
-                        corSeveridade = [185, 28, 28]; // Vermelho escuro
+                        corSeveridade = '#B91C1C'; // Vermelho escuro
                         break;
                     default:
-                        corSeveridade = [107, 114, 128]; // Cinza
+                        corSeveridade = '#6B7280'; // Cinza
                 }
-
+                
                 // Aplicar cor à severidade
-                doc.setTextColor(corSeveridade[0], corSeveridade[1], corSeveridade[2]);
+                doc.setTextColor(corSeveridade);
                 doc.text(`Severidade: ${evidencia.severidade.toUpperCase()}`, 20, y);
-
+                
                 // Voltar cor para preto
-                doc.setTextColor(0, 0, 0);
+                doc.setTextColor('#000000');
                 y += 10;
 
                 doc.text(`Data/Hora: ${this.formatarData(evidencia.timestamp)}`, 20, y);
