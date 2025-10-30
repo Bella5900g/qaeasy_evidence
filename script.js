@@ -8,9 +8,6 @@
 
 class QAEasyEvidence {
     constructor() {
-        this.sessaoAtiva = false;
-        this.timerSessao = null;
-        this.tempoInicioSessao = null;
         this.evidencias = [];
         this.configuracaoAtual = null;
         this.logsConsole = [];
@@ -35,16 +32,6 @@ class QAEasyEvidence {
      * Configura todos os event listeners da aplicação
      */
     configurarEventListeners() {
-        // Botão de iniciar/pausar sessão
-        document.getElementById('btnIniciarSessao').addEventListener('click', () => {
-            this.toggleSessao();
-        });
-
-        // Botão de zerar timer
-        document.getElementById('btnZerarTimer').addEventListener('click', () => {
-            this.zerarTimer();
-        });
-
         // Botão de limpar evidências antigas
         document.getElementById('btnLimparEvidenciasAntigas').addEventListener('click', () => {
             this.limparEvidenciasAntigas();
@@ -97,109 +84,13 @@ class QAEasyEvidence {
         document.getElementById('funcionalidade').addEventListener('input', this.validarConfiguracao.bind(this));
     }
 
-    /**
-     * Inicia ou pausa a sessão de teste
-     */
-    toggleSessao() {
-        const btnSessao = document.getElementById('btnIniciarSessao');
-        const statusIndicador = document.getElementById('statusIndicador');
 
-        if (!this.sessaoAtiva) {
-            this.iniciarSessao();
-            btnSessao.textContent = 'Pausar Sessão';
-            statusIndicador.textContent = '🟢 Sessão Ativa';
-            statusIndicador.style.color = '#10b981';
-        } else {
-            this.pausarSessao();
-            btnSessao.textContent = 'Iniciar Sessão';
-            statusIndicador.textContent = '⏸️ Sessão Pausada';
-            statusIndicador.style.color = '#64748b';
-        }
-    }
 
-    /**
-     * Inicia uma nova sessão de teste
-     */
-    iniciarSessao() {
-        this.sessaoAtiva = true;
-        this.tempoInicioSessao = new Date();
-        this.iniciarTimer();
-
-        // Mostrar botão de zerar timer
-        document.getElementById('btnZerarTimer').style.display = 'inline-block';
-
-        // Salvar configuração atual se não estiver salva
-        if (!this.configuracaoAtual) {
-            this.salvarConfiguracao();
-        }
-
-        this.mostrarNotificacao('Sessão de teste iniciada!', 'sucesso');
-    }
-
-    /**
-     * Pausa a sessão atual
-     */
-    pausarSessao() {
-        this.sessaoAtiva = false;
-        this.pararTimer();
-        this.mostrarNotificacao('Sessão pausada!', 'info');
-    }
-
-    /**
-     * Zera o timer da sessão
-     */
-    zerarTimer() {
-        this.tempoInicioSessao = new Date();
-        this.atualizarTimer();
-        this.mostrarNotificacao('Timer zerado!', 'info');
-    }
-
-    /**
-     * Inicia o timer da sessão
-     */
-    iniciarTimer() {
-        this.timerSessao = setInterval(() => {
-            this.atualizarTimer();
-        }, 1000);
-    }
-
-    /**
-     * Para o timer da sessão
-     */
-    pararTimer() {
-        if (this.timerSessao) {
-            clearInterval(this.timerSessao);
-            this.timerSessao = null;
-        }
-    }
-
-    /**
-     * Atualiza o display do timer
-     */
-    atualizarTimer() {
-        if (!this.tempoInicioSessao) return;
-
-        const agora = new Date();
-        const diferenca = agora - this.tempoInicioSessao;
-        const segundos = Math.floor(diferenca / 1000);
-        const minutos = Math.floor(segundos / 60);
-        const horas = Math.floor(minutos / 60);
-
-        const tempoFormatado = `${horas.toString().padStart(2, '0')}:${(minutos % 60).toString().padStart(2, '0')}:${(segundos % 60).toString().padStart(2, '0')}`;
-
-        document.getElementById('timerSessao').textContent = tempoFormatado;
-        document.getElementById('tempoSessao').textContent = tempoFormatado;
-    }
 
     /**
      * Captura screenshot da aba atual
      */
     async capturarScreenshot() {
-        if (!this.sessaoAtiva) {
-            this.mostrarNotificacao('Inicie uma sessão antes de capturar evidências!', 'erro');
-            return;
-        }
-
         if (!this.configuracaoAtual) {
             this.mostrarNotificacao('Configure o contexto do teste primeiro!', 'erro');
             return;
@@ -1133,9 +1024,7 @@ class QAEasyEvidence {
 
             const dados = {
                 evidencias: evidenciasOtimizadas,
-                configuracaoAtual: this.configuracaoAtual,
-                sessaoAtiva: this.sessaoAtiva,
-                tempoInicioSessao: this.tempoInicioSessao
+                configuracaoAtual: this.configuracaoAtual
             };
 
             const dadosString = JSON.stringify(dados);
@@ -1146,9 +1035,7 @@ class QAEasyEvidence {
                 // Tentar novamente com dados otimizados
                 const dadosOtimizados = {
                     evidencias: this.evidencias.slice(-20), // Manter apenas as últimas 20 evidências
-                    configuracaoAtual: this.configuracaoAtual,
-                    sessaoAtiva: this.sessaoAtiva,
-                    tempoInicioSessao: this.tempoInicioSessao
+                    configuracaoAtual: this.configuracaoAtual
                 };
                 localStorage.setItem('qaEasyEvidence', JSON.stringify(dadosOtimizados));
                 this.mostrarNotificacao('Dados otimizados para caber no armazenamento local', 'info');
@@ -1210,15 +1097,7 @@ class QAEasyEvidence {
                 const parsed = JSON.parse(dados);
                 this.evidencias = parsed.evidencias || [];
                 this.configuracaoAtual = parsed.configuracaoAtual;
-                this.sessaoAtiva = parsed.sessaoAtiva || false;
-                this.tempoInicioSessao = parsed.tempoInicioSessao ? new Date(parsed.tempoInicioSessao) : null;
 
-                if (this.sessaoAtiva && this.tempoInicioSessao) {
-                    this.iniciarTimer();
-                    document.getElementById('btnIniciarSessao').textContent = 'Pausar Sessão';
-                    document.getElementById('statusIndicador').textContent = '🟢 Sessão Ativa';
-                    document.getElementById('statusIndicador').style.color = '#10b981';
-                }
             }
         } catch (erro) {
             console.error('Erro ao carregar dados salvos:', erro);
