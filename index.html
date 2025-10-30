@@ -40,17 +40,35 @@
                     <label for="projeto">Projeto *</label>
                     <select id="projeto" required>
                         <option value="">Selecione o projeto</option>
-                        <option value="ecommerce">E-commerce</option>
-                        <option value="mobile-app">Aplicativo Mobile</option>
-                        <option value="dashboard">Dashboard Admin</option>
-                        <option value="api">API Backend</option>
-                        <option value="outro">Outro</option>
+                        <option value="web">WEB</option>
+                        <option value="mobile">MOBILE</option>
+                        <option value="api">API</option>
+                        <option value="outros">Outros</option>
                     </select>
                 </div>
 
                 <div class="campo-grupo">
-                    <label for="cenario">Cenário de Teste *</label>
-                    <input type="text" id="cenario" placeholder="Ex: Fluxo de checkout completo" required>
+                    <label for="versao">Versão do Projeto</label>
+                    <input type="text" id="versao" placeholder="Ex: v2.1.0, 1.5.3, etc.">
+                    <small class="dica-campo">Versão específica que está sendo testada</small>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="funcionalidade">Funcionalidade *</label>
+                    <input type="text" id="funcionalidade" placeholder="Ex: Sistema de Login, Checkout, Dashboard" required>
+                    <small class="dica-campo">Funcionalidade principal que está sendo testada</small>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="tarefa">Tarefa/User Story</label>
+                    <input type="text" id="tarefa" placeholder="Ex: TASK-123, US-456, ou link da tarefa">
+                    <small class="dica-campo">ID da tarefa, user story ou link para rastreamento</small>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="prerequisitos">Pré-requisitos</label>
+                    <textarea id="prerequisitos" placeholder="Ex: Usuário logado, dados de teste carregados, ambiente configurado..." rows="3"></textarea>
+                    <small class="dica-campo">Informações necessárias para executar os testes</small>
                 </div>
 
                 <div class="campo-grupo">

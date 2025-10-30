@@ -97,7 +97,7 @@ class QAEasyEvidence {
 
         // Validação em tempo real dos campos obrigatórios
         document.getElementById('projeto').addEventListener('change', this.validarConfiguracao.bind(this));
-        document.getElementById('cenario').addEventListener('input', this.validarConfiguracao.bind(this));
+        document.getElementById('funcionalidade').addEventListener('input', this.validarConfiguracao.bind(this));
     }
 
     /**
@@ -358,8 +358,8 @@ class QAEasyEvidence {
         document.getElementById('severidade').value = 'baixa';
         document.getElementById('descricaoEvidencia').value = '';
 
-        // Preencher cenário com o valor atual da configuração
-        document.getElementById('cenarioEvidencia').value = this.configuracaoAtual?.cenario || '';
+        // Preencher cenário com o valor atual da configuração (funcionalidade)
+        document.getElementById('cenarioEvidencia').value = this.configuracaoAtual?.funcionalidade || '';
     }
 
     /**
@@ -421,18 +421,24 @@ class QAEasyEvidence {
      */
     salvarConfiguracao() {
         const projeto = document.getElementById('projeto').value;
-        const cenario = document.getElementById('cenario').value.trim();
+        const funcionalidade = document.getElementById('funcionalidade').value.trim();
+        const versao = document.getElementById('versao').value.trim();
+        const tarefa = document.getElementById('tarefa').value.trim();
+        const prerequisitos = document.getElementById('prerequisitos').value.trim();
         const template = document.getElementById('template').value;
         const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
 
-        if (!projeto || !cenario) {
+        if (!projeto || !funcionalidade) {
             this.mostrarNotificacao('Preencha todos os campos obrigatórios!', 'erro');
             return;
         }
 
         this.configuracaoAtual = {
             projeto,
-            cenario,
+            funcionalidade,
+            versao: versao || null,
+            tarefa: tarefa || null,
+            prerequisitos: prerequisitos || null,
             template,
             tags,
             timestamp: new Date().toISOString()
@@ -447,7 +453,10 @@ class QAEasyEvidence {
      */
     limparConfiguracao() {
         document.getElementById('projeto').value = '';
-        document.getElementById('cenario').value = '';
+        document.getElementById('versao').value = '';
+        document.getElementById('funcionalidade').value = '';
+        document.getElementById('tarefa').value = '';
+        document.getElementById('prerequisitos').value = '';
         document.getElementById('template').value = 'smoke-test';
         document.getElementById('tags').value = '';
         this.configuracaoAtual = null;
@@ -460,10 +469,10 @@ class QAEasyEvidence {
      */
     validarConfiguracao() {
         const projeto = document.getElementById('projeto').value;
-        const cenario = document.getElementById('cenario').value.trim();
+        const funcionalidade = document.getElementById('funcionalidade').value.trim();
         const btnSalvar = document.getElementById('btnSalvarConfiguracao');
 
-        btnSalvar.disabled = !projeto || !cenario;
+        btnSalvar.disabled = !projeto || !funcionalidade;
     }
 
     /**
@@ -631,8 +640,20 @@ class QAEasyEvidence {
 
         doc.setFontSize(12);
         doc.text(`Projeto: ${this.configuracaoAtual?.projeto || 'Não definido'}`, 20, 50);
-        doc.text(`Data: ${this.formatarData(new Date())}`, 20, 60);
-        doc.text(`Total de Evidências: ${this.evidencias.length}`, 20, 70);
+        doc.text(`Funcionalidade: ${this.configuracaoAtual?.funcionalidade || 'Não definida'}`, 20, 60);
+
+        let yInfo = 70;
+        if (this.configuracaoAtual?.versao) {
+            doc.text(`Versão: ${this.configuracaoAtual.versao}`, 20, yInfo);
+            yInfo += 10;
+        }
+        if (this.configuracaoAtual?.tarefa) {
+            doc.text(`Tarefa: ${this.configuracaoAtual.tarefa}`, 20, yInfo);
+            yInfo += 10;
+        }
+
+        doc.text(`Data: ${this.formatarData(new Date())}`, 20, yInfo);
+        doc.text(`Total de Evidências: ${this.evidencias.length}`, 20, yInfo + 10);
 
         // Agrupar evidências por cenário
         const evidenciasPorCenario = this.agruparEvidenciasPorCenario();
@@ -726,6 +747,18 @@ class QAEasyEvidence {
     gerarMarkdown() {
         let markdown = `# Relatório de Evidências de Teste\n\n`;
         markdown += `**Projeto:** ${this.configuracaoAtual?.projeto || 'Não definido'}\n`;
+        markdown += `**Funcionalidade:** ${this.configuracaoAtual?.funcionalidade || 'Não definida'}\n`;
+
+        if (this.configuracaoAtual?.versao) {
+            markdown += `**Versão:** ${this.configuracaoAtual.versao}\n`;
+        }
+        if (this.configuracaoAtual?.tarefa) {
+            markdown += `**Tarefa:** ${this.configuracaoAtual.tarefa}\n`;
+        }
+        if (this.configuracaoAtual?.prerequisitos) {
+            markdown += `**Pré-requisitos:** ${this.configuracaoAtual.prerequisitos}\n`;
+        }
+
         markdown += `**Data:** ${this.formatarData(new Date())}\n`;
         markdown += `**Total de Evidências:** ${this.evidencias.length}\n\n`;
         markdown += `## Resumo\n\n`;
