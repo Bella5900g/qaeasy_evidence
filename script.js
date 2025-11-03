@@ -232,12 +232,280 @@ class QAEasyEvidence {
      * Mostra o formulário de classificação da evidência
      */
     mostrarFormularioClassificacao(screenshotData) {
+        // Armazenar dados do screenshot temporariamente
+        this.screenshotTemporario = screenshotData;
+
+        // Mostrar editor de imagem primeiro para permitir marcação
+        this.mostrarEditorImagem(screenshotData);
+    }
+
+    /**
+     * Mostra o editor de imagem com marca-texto
+     */
+    mostrarEditorImagem(screenshotData) {
+        const editor = document.getElementById('editorImagem');
+        editor.style.display = 'block';
+        editor.scrollIntoView({ behavior: 'smooth' });
+
+        // Inicializar canvas do editor
+        this.inicializarEditorCanvas(screenshotData);
+    }
+
+    /**
+     * Inicializa o canvas do editor de imagem
+     */
+    inicializarEditorCanvas(screenshotData) {
+        const canvas = document.getElementById('canvasEditor');
+        const ctx = canvas.getContext('2d');
+
+        // Criar imagem a partir dos dados base64
+        const img = new Image();
+        img.onload = () => {
+            // Definir dimensões do canvas mantendo proporção
+            const maxWidth = 900;
+            const maxHeight = 600;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+            if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Desenhar imagem no canvas
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Salvar contexto para redesenhar quando necessário
+            this.canvasEditor = canvas;
+            this.ctxEditor = ctx;
+            this.imagemOriginalEditor = screenshotData;
+        };
+
+        img.src = screenshotData;
+
+        // Configurar eventos de desenho
+        this.configurarEventosDesenho(canvas, ctx);
+
+        // Configurar controles da toolbar
+        this.configurarToolbarEditor();
+    }
+
+    /**
+     * Configura eventos de desenho no canvas
+     */
+    configurarEventosDesenho(canvas, ctx) {
+        let desenhando = false;
+        let ultimaX = 0;
+        let ultimaY = 0;
+        let corMarcador = 'rgba(255, 255, 0, 0.4)'; // Amarelo padrão
+        let espessuraMarcador = 20;
+        let modoBorracha = false;
+
+        // Função para desenhar linha
+        const desenharLinha = (x1, y1, x2, y2) => {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+
+            if (modoBorracha) {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = corMarcador;
+            }
+
+            ctx.lineWidth = espessuraMarcador;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        };
+
+        // Eventos do mouse
+        canvas.addEventListener('mousedown', (e) => {
+            desenhando = true;
+            const rect = canvas.getBoundingClientRect();
+            ultimaX = e.clientX - rect.left;
+            ultimaY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!desenhando) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            desenharLinha(ultimaX, ultimaY, x, y);
+
+            ultimaX = x;
+            ultimaY = y;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            desenhando = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            desenhando = false;
+        });
+
+        // Eventos touch para dispositivos móveis
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            desenhando = true;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            ultimaX = touch.clientX - rect.left;
+            ultimaY = touch.clientY - rect.top;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!desenhando) return;
+
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            desenharLinha(ultimaX, ultimaY, x, y);
+
+            ultimaX = x;
+            ultimaY = y;
+        });
+
+        canvas.addEventListener('touchend', () => {
+            desenhando = false;
+        });
+
+        // Armazenar funções para serem atualizadas pelos controles
+        this.atualizarCorMarcador = (cor) => {
+            corMarcador = cor;
+            modoBorracha = false;
+        };
+
+        this.atualizarEspessuraMarcador = (espessura) => {
+            espessuraMarcador = espessura;
+        };
+
+        this.ativarBorracha = () => {
+            modoBorracha = true;
+        };
+
+        this.desativarBorracha = () => {
+            modoBorracha = false;
+        };
+    }
+
+    /**
+     * Configura controles da toolbar do editor
+     */
+    configurarToolbarEditor() {
+        // Seleção de cor
+        const coresMarcador = document.querySelectorAll('.cor-marcador');
+        coresMarcador.forEach(btn => {
+            btn.addEventListener('click', () => {
+                coresMarcador.forEach(b => b.classList.remove('ativa'));
+                btn.classList.add('ativa');
+                const cor = btn.getAttribute('data-cor');
+                this.atualizarCorMarcador(cor);
+                this.desativarBorracha();
+            });
+        });
+
+        // Espessura
+        const sliderEspessura = document.getElementById('espessuraMarcador');
+        const valorEspessura = document.getElementById('valorEspessura');
+        if (sliderEspessura && valorEspessura) {
+            sliderEspessura.addEventListener('input', (e) => {
+                const valor = e.target.value;
+                valorEspessura.textContent = valor + 'px';
+                this.atualizarEspessuraMarcador(parseInt(valor));
+            });
+        }
+
+        // Borracha
+        const btnBorracha = document.getElementById('btnBorracha');
+        if (btnBorracha) {
+            btnBorracha.addEventListener('click', () => {
+                this.ativarBorracha();
+                coresMarcador.forEach(b => b.classList.remove('ativa'));
+            });
+        }
+
+        // Limpar tudo
+        const btnLimparTudo = document.getElementById('btnLimparTudo');
+        if (btnLimparTudo) {
+            btnLimparTudo.addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja limpar todas as marcações?')) {
+                    const canvas = this.canvasEditor;
+                    const ctx = this.ctxEditor;
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = this.imagemOriginalEditor;
+                }
+            });
+        }
+
+        // Aplicar edição
+        const btnAplicarEdicao = document.getElementById('btnAplicarEdicao');
+        if (btnAplicarEdicao) {
+            btnAplicarEdicao.addEventListener('click', () => {
+                const imagemEditada = this.canvasEditor.toDataURL('image/png');
+                this.screenshotTemporario = imagemEditada;
+                this.ocultarEditorImagem();
+                this.mostrarFormularioClassificacaoFinal();
+            });
+        }
+
+        // Cancelar edição
+        const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+        if (btnCancelarEdicao) {
+            btnCancelarEdicao.addEventListener('click', () => {
+                if (confirm('Descartar marcações e usar imagem original?')) {
+                    this.ocultarEditorImagem();
+                    this.mostrarFormularioClassificacaoFinal();
+                }
+            });
+        }
+
+        // Fechar editor
+        const btnFecharEditor = document.getElementById('btnFecharEditor');
+        if (btnFecharEditor) {
+            btnFecharEditor.addEventListener('click', () => {
+                if (confirm('Descartar marcações e usar imagem original?')) {
+                    this.ocultarEditorImagem();
+                    this.mostrarFormularioClassificacaoFinal();
+                }
+            });
+        }
+    }
+
+    /**
+     * Oculta o editor de imagem
+     */
+    ocultarEditorImagem() {
+        document.getElementById('editorImagem').style.display = 'none';
+    }
+
+    /**
+     * Mostra o formulário de classificação após edição (ou se pulou edição)
+     */
+    mostrarFormularioClassificacaoFinal() {
         const formulario = document.getElementById('formularioClassificacao');
         formulario.style.display = 'block';
         formulario.scrollIntoView({ behavior: 'smooth' });
-
-        // Armazenar dados do screenshot temporariamente
-        this.screenshotTemporario = screenshotData;
 
         // Limpar formulário
         document.querySelectorAll('input[name="tipoEvidencia"]').forEach(input => {

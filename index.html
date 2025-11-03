@@ -103,6 +103,46 @@
                     <p class="dica-captura">Clique para escolher e capturar uma aba específica</p>
                 </div>
 
+                <!-- Editor de Imagem com Marca-texto -->
+                <div class="editor-imagem" id="editorImagem" style="display: none;">
+                    <div class="editor-header">
+                        <h3>🖍️ Marcar Áreas na Imagem</h3>
+                        <button class="btn-fechar-editor" id="btnFecharEditor">×</button>
+                    </div>
+                    <div class="editor-conteudo">
+                        <div class="editor-toolbar">
+                            <div class="toolbar-grupo">
+                                <label class="toolbar-label">Marca-texto:</label>
+                                <div class="cores-marcador">
+                                    <button class="cor-marcador ativa" data-cor="rgba(255, 255, 0, 0.4)" data-nome="Amarelo" style="background: rgba(255, 255, 0, 0.6);" title="Amarelo"></button>
+                                    <button class="cor-marcador" data-cor="rgba(0, 255, 0, 0.4)" data-nome="Verde" style="background: rgba(0, 255, 0, 0.6);" title="Verde"></button>
+                                    <button class="cor-marcador" data-cor="rgba(0, 0, 255, 0.4)" data-nome="Azul" style="background: rgba(0, 0, 255, 0.6);" title="Azul"></button>
+                                    <button class="cor-marcador" data-cor="rgba(255, 0, 0, 0.4)" data-nome="Vermelho" style="background: rgba(255, 0, 0, 0.6);" title="Vermelho"></button>
+                                    <button class="cor-marcador" data-cor="rgba(255, 165, 0, 0.4)" data-nome="Laranja" style="background: rgba(255, 165, 0, 0.6);" title="Laranja"></button>
+                                    <button class="cor-marcador" data-cor="rgba(128, 0, 128, 0.4)" data-nome="Roxo" style="background: rgba(128, 0, 128, 0.6);" title="Roxo"></button>
+                                </div>
+                            </div>
+                            <div class="toolbar-grupo">
+                                <label class="toolbar-label">Espessura:</label>
+                                <input type="range" id="espessuraMarcador" min="10" max="50" value="20" class="slider-espessura">
+                                <span id="valorEspessura">20px</span>
+                            </div>
+                            <div class="toolbar-grupo">
+                                <button class="btn-ferramenta" id="btnBorracha" title="Borracha">🧹 Apagar</button>
+                                <button class="btn-ferramenta" id="btnLimparTudo" title="Limpar tudo">🗑️ Limpar Tudo</button>
+                            </div>
+                        </div>
+                        <div class="editor-canvas-container">
+                            <canvas id="canvasEditor" class="canvas-editor"></canvas>
+                            <div class="canvas-dica">Arraste sobre a imagem para marcar áreas</div>
+                        </div>
+                        <div class="editor-acoes">
+                            <button class="btn-primario" id="btnAplicarEdicao">✅ Aplicar Marcas</button>
+                            <button class="btn-secundario" id="btnCancelarEdicao">❌ Descartar</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="formulario-classificacao" id="formularioClassificacao">
                     <h3>Classificar Evidência</h3>
 
